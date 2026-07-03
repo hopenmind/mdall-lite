@@ -21,6 +21,7 @@ cargo build --release -p mdall-convert
 
 ```sh
 mdall-convert <input> <output>     # formats inferred from extensions
+mdall-convert --clean[=audit|sanitize|decontaminate] <input> [output]  # strip LLM watermarks / tics
 mdall-convert --list-formats       # list supported import/export formats
 mdall-convert --help
 ```
