@@ -380,14 +380,28 @@ fn call_export_md(args: &Value) -> Result<Vec<Value>, String> {
 
 fn call_recover_source(args: &Value) -> Result<Vec<Value>, String> {
     let input = str_arg(args, "input")?;
-    let md = source_embed::import_docx_source(Path::new(input))?;
+    // Panic firewall: this path bypasses convert::import_to_md's catch_unwind, so a
+    // crafted DOCX could otherwise abort the whole stdio server. Fail soft instead.
+    let md = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        source_embed::import_docx_source(Path::new(input))
+    }))
+    .map_err(|_| "recovery panicked on this file (likely malformed)".to_string())??;
     Ok(vec![text_block(&md)])
 }
 
 fn call_inspect_docx(args: &Value) -> Result<Vec<Value>, String> {
     let input = str_arg(args, "input")?;
-    let v = match source_embed::import_docx_source_detailed(Path::new(input)) {
-        Ok((md, full)) => {
+    // Panic firewall (same rationale as call_recover_source).
+    let detailed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        source_embed::import_docx_source_detailed(Path::new(input))
+    }));
+    let v = match detailed {
+        Err(_) => json!({
+            "input": input,
+            "reversible": false,
+            "reason": "inspection panicked on this file (likely malformed)"
+        }),
+        Ok(Ok((md, full))) => {
             let preview: String = md.chars().take(200).collect();
             json!({
                 "input": input,
@@ -398,7 +412,7 @@ fn call_inspect_docx(args: &Value) -> Result<Vec<Value>, String> {
                 "preview": preview
             })
         }
-        Err(e) => json!({ "input": input, "reversible": false, "reason": e }),
+        Ok(Err(e)) => json!({ "input": input, "reversible": false, "reason": e }),
     };
     Ok(vec![text_block(&pretty(&v))])
 }
