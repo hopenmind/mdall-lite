@@ -211,7 +211,7 @@ fn main() -> eframe::Result<()> {
 fn load_icon() -> egui::IconData {
     // The real brand logo (transparent-background RGBA) as the window/taskbar
     // icon - the Heimdall crown-and-ring emblem, not a generic placeholder.
-    let img = match image::load_from_memory(include_bytes!("../assets/Logo.png")) {
+    let img = match image::load_from_memory(include_bytes!("../assets/logo.png")) {
         Ok(img) => img.into_rgba8(),
         // Embedded asset; a decode failure would mean a broken build, not user
         // input. Degrade to a 1x1 transparent icon rather than panic at launch.
@@ -837,7 +837,7 @@ impl eframe::App for MdApp {
 impl MdApp {
     fn load_logo(&mut self, ctx: &egui::Context) {
         if self.logo_tex.is_some() { return; }
-        let img = match image::load_from_memory(include_bytes!("../assets/Logo.png")) {
+        let img = match image::load_from_memory(include_bytes!("../assets/logo.png")) {
             Ok(img) => img.into_rgba8(),
             Err(_) => return, // no logo texture rather than a startup panic
         };

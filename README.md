@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/Logo.png" alt="MD -> ALL lite" width="360"/>
+  <img src="assets/logo.png" alt="MD -> ALL lite" width="360"/>
 </div>
 
 <br/>
