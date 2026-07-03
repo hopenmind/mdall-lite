@@ -9,7 +9,7 @@
 use eframe::egui;
 use mdall_core::editor::BlockKind;
 
-use crate::{theme, MdApp};
+use crate::{theme, MdApp, ViewMode};
 
 impl MdApp {
     pub(crate) fn show_gallery(&mut self, ui: &mut egui::Ui, _ctx: &egui::Context) {
@@ -18,6 +18,29 @@ impl MdApp {
         // An Edit click is recorded here and applied AFTER the scroll area, so the
         // render closure never needs a mutable borrow of self.
         let mut open_req: Option<(usize, String)> = None;
+
+        // Top bar: back to the converter hub (lite navigation).
+        let mut go_home = false;
+        ui.horizontal(|ui| {
+            if ui
+                .button(egui::RichText::new("\u{2190} Converter").color(theme::ACCENT))
+                .clicked()
+            {
+                go_home = true;
+            }
+            if let Some(p) = &self.current_file {
+                if let Some(name) = p.file_name() {
+                    ui.label(
+                        egui::RichText::new(name.to_string_lossy()).color(theme::text_faint(dark)),
+                    );
+                }
+            }
+        });
+        if go_home {
+            self.view_mode = ViewMode::Converter;
+            return;
+        }
+        ui.separator();
 
         // Snapshot the display equations up front (index + LaTeX), so the render
         // borrow never conflicts with a later source mutation (equation editing).

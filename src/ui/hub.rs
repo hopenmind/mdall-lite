@@ -618,7 +618,8 @@ impl MdApp {
         self.conversion_hub.converted_md = None;
     }
 
-    /// Import file `i` into the editor and switch to Editor view.
+    /// Import file `i` and open its equation gallery (the lite editing surface -
+    /// the full WYSIWYG editor is not exposed in mdall-lite).
     fn open_hub_file_in_editor(&mut self, i: usize) {
         let path = match self.conversion_hub.files.get(i) {
             Some(f) => f.path.clone(),
@@ -631,7 +632,7 @@ impl MdApp {
                 self.modified = false;
                 self.segments_dirty = true;
                 self.conversion_hub.converted_md = Some(md);
-                self.view_mode = ViewMode::Editor;
+                self.view_mode = ViewMode::Gallery;
             }
             Err(e) => {
                 self.conversion_hub.status = format!("Import error: {}", e);
