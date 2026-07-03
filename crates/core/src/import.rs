@@ -8,6 +8,12 @@
 
 use std::path::Path;
 
+/// Hard cap on bytes read from any single ZIP archive entry (zip-bomb guard).
+/// A malformed or hostile container advertising a huge (or streaming) entry is
+/// bounded here, so import degrades to a truncated read instead of exhausting
+/// memory. 128 MiB is far above any legitimate document XML / EPUB chapter.
+const MAX_ZIP_ENTRY_BYTES: u64 = 128 << 20;
+
 // ═════════════════════════════════════════════════════════════════════════════
 // HTML → Markdown
 // ═════════════════════════════════════════════════════════════════════════════
@@ -562,6 +568,7 @@ pub fn epub_to_md(path: &Path) -> Result<String, String> {
         let mut s = String::new();
         zip.by_name("META-INF/container.xml")
             .map_err(|_| "EPUB: META-INF/container.xml missing".to_string())?
+            .take(MAX_ZIP_ENTRY_BYTES)
             .read_to_string(&mut s)
             .map_err(|e| e.to_string())?;
         extract_xml_attr(&s, "full-path")
@@ -580,6 +587,7 @@ pub fn epub_to_md(path: &Path) -> Result<String, String> {
         let mut s = String::new();
         zip.by_name(&opf_path)
             .map_err(|e| format!("EPUB OPF not found: {}", e))?
+            .take(MAX_ZIP_ENTRY_BYTES)
             .read_to_string(&mut s)
             .map_err(|e| e.to_string())?;
         s
@@ -601,9 +609,9 @@ pub fn epub_to_md(path: &Path) -> Result<String, String> {
             normalize_path(&format!("{}/{}", opf_dir, href))
         };
         let html = match zip.by_name(&chapter_path) {
-            Ok(mut e) => {
+            Ok(e) => {
                 let mut s = String::new();
-                e.read_to_string(&mut s).map_err(|e| e.to_string())?;
+                e.take(MAX_ZIP_ENTRY_BYTES).read_to_string(&mut s).map_err(|e| e.to_string())?;
                 s
             }
             Err(_) => continue,
@@ -683,6 +691,7 @@ pub fn odt_to_md(path: &Path) -> Result<String, String> {
     let mut xml = String::new();
     z.by_name("content.xml")
         .map_err(|_| "ODT: content.xml not found".to_string())?
+        .take(MAX_ZIP_ENTRY_BYTES)
         .read_to_string(&mut xml)
         .map_err(|e| e.to_string())?;
 
@@ -805,13 +814,14 @@ pub fn docx_generic_to_md(path: &Path) -> Result<String, String> {
     let mut xml = String::new();
     z.by_name("word/document.xml")
         .map_err(|_| "DOCX: word/document.xml not found".to_string())?
+        .take(MAX_ZIP_ENTRY_BYTES)
         .read_to_string(&mut xml)
         .map_err(|e| e.to_string())?;
 
     // Hyperlink targets (optional).
     let mut rels_xml = String::new();
-    if let Ok(mut r) = z.by_name("word/_rels/document.xml.rels") {
-        let _ = r.read_to_string(&mut rels_xml);
+    if let Ok(r) = z.by_name("word/_rels/document.xml.rels") {
+        let _ = r.take(MAX_ZIP_ENTRY_BYTES).read_to_string(&mut rels_xml);
     }
     let rels = crate::import_xml::parse_docx_rels(&rels_xml);
 
@@ -3291,10 +3301,10 @@ pub fn pptx_to_md(path: &Path) -> Result<String, String> {
 
     for (idx, slide_name) in slide_names.iter().enumerate() {
         let xml = {
-            let mut entry = zip.by_name(slide_name)
+            let entry = zip.by_name(slide_name)
                 .map_err(|e| format!("PPTX slide: {}", e))?;
             let mut s = String::new();
-            entry.read_to_string(&mut s).map_err(|e| e.to_string())?;
+            entry.take(MAX_ZIP_ENTRY_BYTES).read_to_string(&mut s).map_err(|e| e.to_string())?;
             s
         };
 

@@ -646,6 +646,19 @@ fn import_docx_generic_does_not_panic_on_real_docx() {
     cleanup(&out);
 }
 
+#[test]
+fn import_odt_survives_zip_entry_cap() {
+    // Round-trip an ODT through export + import. Exercises the size-capped
+    // content.xml read (MAX_ZIP_ENTRY_BYTES zip-bomb guard): a legitimate
+    // document must come back whole, never truncated by the cap.
+    let out = tmp("odt_cap", "odt");
+    export_formats::export_odt(sample(), &out, &meta(), None).expect("export_odt failed");
+    let md = crate::import::odt_to_md(&out).expect("odt_to_md failed");
+    assert!(!md.trim().is_empty(), "ODT import returned EMPTY - content loss");
+    assert!(md.contains("Titre"), "ODT import lost the title. Got: {}", md);
+    cleanup(&out);
+}
+
 // ── S6: generic DOCX import fidelity (bold / italic / headings) ────────────────
 
 #[test]
