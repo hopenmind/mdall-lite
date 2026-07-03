@@ -368,8 +368,8 @@ fn docx_comment_latex_roundtrips_through_md_to_all_author() {
     // Layer-2-via-comments recovery binds two hardcoded literals: the exporter
     // writes w:author="MD-TO-ALL" comments carrying the LaTeX, and source_embed
     // mines exactly that author. A silent drift on either side kills comment-based
-    // recovery (CLAUDE.md 3: this legacy literal must not change). Round-trips both
-    // sides through the real export + the real extractor.
+    // recovery (the project's reversibility spec marks this literal load-bearing).
+    // Round-trips both sides through the real export + the real extractor.
     use std::io::Read;
     let md = "# Title\n\n$$E = mc^2$$\n";
     let out = tmp("comment_rt", "docx");
