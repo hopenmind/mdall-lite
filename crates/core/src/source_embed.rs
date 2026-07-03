@@ -213,6 +213,11 @@ pub fn import_docx_source(path: &std::path::Path) -> Result<String, String> {
 ///      Word "Save As" stripping the custom entry, but is not lossless.
 ///
 /// The boolean is `true` only for strategy 1.
+/// Cap on a single decompressed ZIP entry, guarding against decompression bombs
+/// (`zip` does not limit decompressed size). Reads are truncated past this, so a
+/// crafted small archive cannot inflate to gigabytes and OOM the process.
+const MAX_ZIP_ENTRY_BYTES: u64 = 128 << 20; // 128 MB
+
 pub fn import_docx_source_detailed(path: &std::path::Path) -> Result<(String, bool), String> {
     let file = std::fs::File::open(path).map_err(|e| e.to_string())?;
     let mut archive = zip::ZipArchive::new(file).map_err(|e| e.to_string())?;
@@ -221,8 +226,7 @@ pub fn import_docx_source_detailed(path: &std::path::Path) -> Result<(String, bo
     if let Ok(mut entry) = archive.by_name(DOCX_SOURCE_ENTRY) {
         use std::io::Read;
         let mut xml = String::new();
-        entry.read_to_string(&mut xml).map_err(|e| e.to_string())?;
-        drop(entry);
+        entry.take(MAX_ZIP_ENTRY_BYTES).read_to_string(&mut xml).map_err(|e| e.to_string())?;
         if let Some(md) = parse_source_xml(&xml) {
             return Ok((md, true));
         }
@@ -259,14 +263,14 @@ fn recover_equations_from_media(archive: &mut zip::ZipArchive<std::fs::File>) ->
         if let Ok(mut entry) = archive.by_name(&name) {
             if is_png {
                 let mut buf = Vec::new();
-                if entry.read_to_end(&mut buf).is_ok() {
+                if entry.take(MAX_ZIP_ENTRY_BYTES).read_to_end(&mut buf).is_ok() {
                     if let Some(latex) = extract_latex_from_png(&buf) {
                         equations.push(latex);
                     }
                 }
             } else {
                 let mut svg = String::new();
-                if entry.read_to_string(&mut svg).is_ok() {
+                if entry.take(MAX_ZIP_ENTRY_BYTES).read_to_string(&mut svg).is_ok() {
                     if let Some(latex) = extract_latex_from_svg(&svg) {
                         equations.push(latex);
                     }
@@ -317,7 +321,7 @@ fn read_zip_entry_string(
     use std::io::Read;
     let mut entry = archive.by_name(name).map_err(|e| e.to_string())?;
     let mut s = String::new();
-    entry.read_to_string(&mut s).map_err(|e| e.to_string())?;
+    entry.take(MAX_ZIP_ENTRY_BYTES).read_to_string(&mut s).map_err(|e| e.to_string())?;
     Ok(s)
 }
 
