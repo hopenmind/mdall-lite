@@ -485,6 +485,55 @@ fn advertised_export_formats_are_all_dispatched() {
     }
 }
 
+#[test]
+fn docx_recovers_from_svg_media_alone() {
+    // Reversibility layer 3: even when the source entry, the MD-TO-ALL comments,
+    // AND the PNG media are all gone (the older-Word / LibreOffice case that keeps
+    // only the SVG), recovery must still reconstruct the equation from the SVG
+    // <metadata>. Both image formats are embedded precisely so one surviving suffices.
+    let md = "# Title\n\n$$E = mc^2$$\n";
+    let full_docx = tmp("svg_full", "docx");
+    export_formats::export_docx(md, &full_docx, &meta(), None).expect("export_docx failed");
+
+    // Rebuild keeping only the SVG media: drop the source entry, the comments part,
+    // and every PNG, so only the SVG can carry the LaTeX.
+    let svg_only = tmp("svg_only", "docx");
+    {
+        let rf = fs::File::open(&full_docx).unwrap();
+        let mut zin = zip::ZipArchive::new(rf).unwrap();
+        let wf = fs::File::create(&svg_only).unwrap();
+        let mut zout = zip::ZipWriter::new(wf);
+        let mut kept_svg = false;
+        for i in 0..zin.len() {
+            let file = zin.by_index(i).unwrap();
+            let name = file.name().to_string();
+            if name == source_embed::DOCX_SOURCE_ENTRY
+                || name.contains("comments")
+                || name.to_lowercase().ends_with(".png")
+            {
+                continue;
+            }
+            if name.to_lowercase().ends_with(".svg") {
+                kept_svg = true;
+            }
+            zout.raw_copy_file(file).unwrap();
+        }
+        zout.finish().unwrap();
+        assert!(kept_svg, "the export embedded no SVG media - layer 3 cannot exist");
+    }
+
+    let (recovered, full) = source_embed::import_docx_source_detailed(&svg_only)
+        .expect("recovery must not error on an SVG-only DOCX");
+    assert!(!full, "recovery must be partial once the primary entry is gone");
+    assert!(
+        recovered.contains("mc^2"),
+        "the equation LaTeX must be recovered from the SVG metadata alone, got: {recovered}"
+    );
+
+    cleanup(&full_docx);
+    cleanup(&svg_only);
+}
+
 // ── Edge cases: conversions must NEVER panic on hostile input ──────────────────
 
 fn run_all_text_exports(md: &str, tag: &str) {
