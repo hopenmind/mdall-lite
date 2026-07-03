@@ -3246,6 +3246,7 @@ dependencies = [
  "pulldown-cmark",
  "quick-xml 0.36.2",
  "rckive-genpdf",
+ "regex",
  "serde",
  "serde_json",
  "spellbook",

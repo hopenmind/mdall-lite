@@ -15,6 +15,9 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 chrono = "0.4"
 
+# Text purification (LLM-tic + French-typography regexes)
+regex = "1"
+
 # Equation rendering (embedded fonts, offline)
 typst = "0.11"
 typst-pdf = "0.11"

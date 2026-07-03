@@ -24,6 +24,7 @@ pub mod import;
 pub(crate) mod import_xml;
 pub mod inline_math;
 pub mod latex_macros;
+pub mod purify;
 pub mod render;
 pub mod source_embed;
 pub mod spell;
