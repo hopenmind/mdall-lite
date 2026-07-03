@@ -313,6 +313,56 @@ fn docx_media_carry_recoverable_latex() {
     cleanup(&out);
 }
 
+#[test]
+fn docx_recovers_after_source_entry_stripped() {
+    // The "Word Save-As rebuilt the ZIP and dropped md-to-all-source.xml" scenario -
+    // the real failure mode the product promises to survive. Recovery must fall back
+    // to layers 2/3 (equation images / MD-TO-ALL comments), still return the LaTeX,
+    // and mark the result partial (full=false). Only a synthetic DOCX tested this
+    // before; this drives it through a genuine export.
+    let md = "# Title\n\nText before.\n\n$$E = mc^2$$\n\nText after.\n";
+    let full_docx = tmp("strip_full", "docx");
+    export_formats::export_docx(md, &full_docx, &meta(), None).expect("export_docx failed");
+
+    // Rebuild the DOCX without the primary source entry (raw-copy every other entry).
+    let stripped = tmp("strip_partial", "docx");
+    {
+        let rf = fs::File::open(&full_docx).unwrap();
+        let mut zin = zip::ZipArchive::new(rf).unwrap();
+        let wf = fs::File::create(&stripped).unwrap();
+        let mut zout = zip::ZipWriter::new(wf);
+        for i in 0..zin.len() {
+            let file = zin.by_index(i).unwrap();
+            if file.name() == source_embed::DOCX_SOURCE_ENTRY {
+                continue;
+            }
+            zout.raw_copy_file(file).unwrap();
+        }
+        zout.finish().unwrap();
+    }
+
+    // Sanity: the primary entry is really gone.
+    {
+        let rf = fs::File::open(&stripped).unwrap();
+        let zin = zip::ZipArchive::new(rf).unwrap();
+        assert!(
+            !zin.file_names().any(|n| n == source_embed::DOCX_SOURCE_ENTRY),
+            "the source entry should have been stripped"
+        );
+    }
+
+    let (recovered, full) = source_embed::import_docx_source_detailed(&stripped)
+        .expect("recovery must degrade gracefully, not error, on a stripped DOCX");
+    assert!(!full, "recovery must be marked partial once the primary entry is gone");
+    assert!(
+        recovered.contains("mc^2"),
+        "the equation LaTeX must be recovered from layers 2/3, got: {recovered}"
+    );
+
+    cleanup(&full_docx);
+    cleanup(&stripped);
+}
+
 // ── Edge cases: conversions must NEVER panic on hostile input ──────────────────
 
 fn run_all_text_exports(md: &str, tag: &str) {
