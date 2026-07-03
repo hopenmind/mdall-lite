@@ -534,6 +534,48 @@ fn docx_recovers_from_svg_media_alone() {
     cleanup(&svg_only);
 }
 
+#[test]
+fn recovery_on_non_mdall_or_corrupt_docx_never_panics() {
+    // The MCP inspect_docx / recover_source tools gate on this: a plain Word doc
+    // (no mdall markers) must degrade to partial recovery (full=false) without
+    // panicking, and a corrupt file must return a clean Err, not abort the process.
+
+    // (1) A foreign-looking DOCX: a real export, no equations, source entry stripped.
+    let plain = tmp("foreign_full", "docx");
+    export_formats::export_docx("# Title\n\nJust plain prose.\n", &plain, &meta(), None)
+        .expect("export_docx failed");
+    let stripped = tmp("foreign_stripped", "docx");
+    {
+        let rf = fs::File::open(&plain).unwrap();
+        let mut zin = zip::ZipArchive::new(rf).unwrap();
+        let wf = fs::File::create(&stripped).unwrap();
+        let mut zout = zip::ZipWriter::new(wf);
+        for i in 0..zin.len() {
+            let file = zin.by_index(i).unwrap();
+            if file.name() == source_embed::DOCX_SOURCE_ENTRY {
+                continue;
+            }
+            zout.raw_copy_file(file).unwrap();
+        }
+        zout.finish().unwrap();
+    }
+    let (_md, full) = source_embed::import_docx_source_detailed(&stripped)
+        .expect("a plain DOCX must degrade to partial recovery, not error");
+    assert!(!full, "a DOCX with no source entry must not report lossless recovery");
+
+    // (2) A corrupt (non-zip) file must Err cleanly, never panic.
+    let junk = tmp("corrupt", "docx");
+    fs::write(&junk, b"not a zip file at all").unwrap();
+    assert!(
+        source_embed::import_docx_source_detailed(&junk).is_err(),
+        "a corrupt DOCX must return Err, not panic"
+    );
+
+    cleanup(&plain);
+    cleanup(&stripped);
+    cleanup(&junk);
+}
+
 // ── Edge cases: conversions must NEVER panic on hostile input ──────────────────
 
 fn run_all_text_exports(md: &str, tag: &str) {

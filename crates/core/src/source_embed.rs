@@ -223,7 +223,7 @@ pub fn import_docx_source_detailed(path: &std::path::Path) -> Result<(String, bo
     let mut archive = zip::ZipArchive::new(file).map_err(|e| e.to_string())?;
 
     // Strategy 1 - embedded source entry (lossless).
-    if let Ok(mut entry) = archive.by_name(DOCX_SOURCE_ENTRY) {
+    if let Ok(entry) = archive.by_name(DOCX_SOURCE_ENTRY) {
         use std::io::Read;
         let mut xml = String::new();
         entry.take(MAX_ZIP_ENTRY_BYTES).read_to_string(&mut xml).map_err(|e| e.to_string())?;
@@ -260,7 +260,7 @@ fn recover_equations_from_media(archive: &mut zip::ZipArchive<std::fs::File>) ->
     let mut equations = Vec::new();
     for name in names {
         let is_png = name.to_lowercase().ends_with(".png");
-        if let Ok(mut entry) = archive.by_name(&name) {
+        if let Ok(entry) = archive.by_name(&name) {
             if is_png {
                 let mut buf = Vec::new();
                 if entry.take(MAX_ZIP_ENTRY_BYTES).read_to_end(&mut buf).is_ok() {
@@ -319,7 +319,7 @@ fn read_zip_entry_string(
     name: &str,
 ) -> Result<String, String> {
     use std::io::Read;
-    let mut entry = archive.by_name(name).map_err(|e| e.to_string())?;
+    let entry = archive.by_name(name).map_err(|e| e.to_string())?;
     let mut s = String::new();
     entry.take(MAX_ZIP_ENTRY_BYTES).read_to_string(&mut s).map_err(|e| e.to_string())?;
     Ok(s)
