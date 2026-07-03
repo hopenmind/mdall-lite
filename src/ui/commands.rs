@@ -508,6 +508,11 @@ impl MdApp {
                     self.view_mode = ViewMode::Editor;
                     self.segments_dirty = true;
                 }
+                // MD -> ALL lite: the equation gallery.
+                if i.key_pressed(egui::Key::Num4) {
+                    self.view_mode = ViewMode::Gallery;
+                    self.segments_dirty = true;
+                }
 
                 // ── Zoom keyboard ─────────────────────────────────────────
                 if i.key_pressed(egui::Key::Equals) || i.key_pressed(egui::Key::Plus) {

@@ -230,6 +230,9 @@ enum ViewMode {
     Split,
     Source,
     Editor,
+    /// MD -> ALL lite: the equation gallery (review + edit equations without the
+    /// full WYSIWYG editor).
+    Gallery,
 }
 
 // Conversion output formats - see src/output_format.rs.
@@ -646,8 +649,14 @@ impl eframe::App for MdApp {
         // shortcuts (so Ctrl+Z sees the edit that just landed).
         self.capture_undo_snapshot();
         self.handle_shortcuts(ctx);
+        // Editor modes = the full-editor views (Source / Split / Editor). The
+        // converter home and the lite equation gallery carry no editor chrome.
+        let editor_mode = matches!(
+            self.view_mode,
+            ViewMode::Source | ViewMode::Split | ViewMode::Editor
+        );
         // Editor-view image drops (the converter home handles its own drops).
-        if self.view_mode != ViewMode::Converter {
+        if editor_mode {
             self.handle_editor_file_drops(ctx);
         }
 
@@ -666,7 +675,7 @@ impl eframe::App for MdApp {
         // The editor formatting toolbar is irrelevant on the converter home.
         // Source -> code toolbar; Editor -> WYSIWYG; Split renders a toolbar per
         // pane inside its own panels (see the ViewMode::Split arm below).
-        if !on_home {
+        if editor_mode {
             match self.view_mode {
                 ViewMode::Source => self.show_source_toolbar(ctx),
                 ViewMode::Split => {}
@@ -732,7 +741,7 @@ impl eframe::App for MdApp {
         self.poll_dict_download(ctx);
         // The review (tracked-changes) and spelling panels are editor features -
         // never on the converter home, even if toggled on in a prior session.
-        if !on_home {
+        if editor_mode {
             self.render_review_panel(ctx);
             self.render_spelling_panel(ctx);
         }
@@ -744,6 +753,13 @@ impl eframe::App for MdApp {
                     .frame(egui::Frame::default().fill(theme::desktop_bg(self.dark_mode)))
                     .show(ctx, |ui| {
                         self.show_converter_hub(ui, ctx);
+                    });
+            }
+            ViewMode::Gallery => {
+                egui::CentralPanel::default()
+                    .frame(egui::Frame::default().fill(theme::desktop_bg(self.dark_mode)))
+                    .show(ctx, |ui| {
+                        self.show_gallery(ui, ctx);
                     });
             }
             ViewMode::Source => {

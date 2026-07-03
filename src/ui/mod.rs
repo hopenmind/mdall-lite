@@ -4,6 +4,7 @@
 pub mod state;
 pub mod icons;
 pub mod hub;
+pub mod gallery;
 pub mod editor;
 pub mod dialogs;
 pub mod commands;

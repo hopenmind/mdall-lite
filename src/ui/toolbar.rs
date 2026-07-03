@@ -1006,6 +1006,7 @@ impl MdApp {
                         ViewMode::Source    => t("view.source"),
                         ViewMode::Split     => t("view.split"),
                         ViewMode::Editor    => t("view.editor"),
+                        ViewMode::Gallery   => t("view.gallery"),
                     }).size(11.5).color(muted));
                 });
             });

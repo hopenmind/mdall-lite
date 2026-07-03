@@ -94,6 +94,7 @@ const EN: &[(&str, &str)] = &[
     ("view.source", "Source"),
     ("view.split", "Split"),
     ("view.editor", "Editor"),
+    ("view.gallery", "Equations"),
     // Module window
     ("module.title", "Modules"),
     ("module.tab.dictionaries", "Dictionaries"),
