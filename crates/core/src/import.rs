@@ -1064,7 +1064,32 @@ pub(crate) fn omml_to_latex(xml: &str) -> String {
     omml_node(xml)
 }
 
+// Recursion-depth firewall for the OMML->LaTeX descent. A crafted document.xml
+// with thousands of nested <m:f>/<m:e> would otherwise drive native-stack
+// recursion to a stack overflow - which is NOT catchable by the import path's
+// catch_unwind. Past the bound we return empty (bounded output) instead. The Drop
+// guard decrements the counter on every exit, including a panic-unwind.
+const MAX_OMML_DEPTH: u32 = 96;
+thread_local! {
+    static OMML_DEPTH: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };
+}
+struct OmmlDepthGuard;
+impl Drop for OmmlDepthGuard {
+    fn drop(&mut self) {
+        OMML_DEPTH.with(|c| c.set(c.get().saturating_sub(1)));
+    }
+}
+
 fn omml_node(xml: &str) -> String {
+    let depth = OMML_DEPTH.with(|c| {
+        let v = c.get() + 1;
+        c.set(v);
+        v
+    });
+    let _guard = OmmlDepthGuard;
+    if depth > MAX_OMML_DEPTH {
+        return String::new();
+    }
     let mut out = String::new();
     let mut pos = 0;
 
