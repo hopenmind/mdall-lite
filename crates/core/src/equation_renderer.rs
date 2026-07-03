@@ -14,6 +14,10 @@ use typst::{Library, World};
 /// Render a LaTeX block equation to RGBA PNG bytes.
 /// Returns `(png_bytes, None)` on success, `(None, Some(error))` on failure.
 pub fn render_equation_png(latex: &str, scale: f32) -> (Option<Vec<u8>>, Option<String>) {
+    // Clamp the raster scale: the output pixmap is (w*scale)x(h*scale)x4 bytes, so an
+    // unbounded scale (e.g. from an untrusted MCP request) would demand terabytes and
+    // OOM the process. 0.1..=10 covers every legitimate use (the app renders at 2x).
+    let scale = if scale.is_finite() { scale.clamp(0.1, 10.0) } else { 2.0 };
     let typst_math = crate::export_typst::latex_to_typst_math(latex);
 
     // Display math in Typst: `$ math $` (spaces = block/display mode).

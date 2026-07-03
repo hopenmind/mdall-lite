@@ -424,7 +424,10 @@ fn call_render_equation(args: &Value) -> Result<Vec<Value>, String> {
             }
         }
         "png" => {
-            let scale = args.get("scale").and_then(Value::as_f64).unwrap_or(2.0) as f32;
+            // Clamp untrusted scale at the boundary (defense-in-depth; render_equation_png
+            // also clamps) so a hostile {"scale": 1e6} cannot request a terabyte pixmap.
+            let scale = (args.get("scale").and_then(Value::as_f64).unwrap_or(2.0) as f32)
+                .clamp(0.1, 10.0);
             let (png_opt, err_opt) = equation_renderer::render_equation_png(latex, scale);
             let png = png_opt
                 .ok_or_else(|| err_opt.unwrap_or_else(|| "PNG rendering failed".to_string()))?;

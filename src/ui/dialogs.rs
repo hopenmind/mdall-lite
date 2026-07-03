@@ -7,7 +7,7 @@ use crate::equation_layout;
 use crate::theme;
 use crate::ui::icons::{self, Icon, IconSet};
 use crate::ui::state::{EditorMode, ToastKind};
-use mdall_core::{editor, export, render, inline_math, export_formats};
+use mdall_core::{editor, export, inline_math, export_formats};
 
 impl MdApp {
     pub(crate) fn show_equation_editor(&mut self, ctx: &egui::Context) {
@@ -115,18 +115,13 @@ impl MdApp {
             self.segments_dirty = true;
             self.status_msg = "Equation updated".into();
         } else {
-            // Fallback: find the raw latex string in source and replace it
-            let equations = render::extract_equations(&self.source);
-            if target_idx < equations.len() {
-                let old = &equations[target_idx];
-                if let Some(pos) = self.source.find(old.as_str()) {
-                    let end = pos + old.len();
-                    self.source.replace_range(pos..end, &new_latex);
-                    self.modified = true;
-                    self.segments_dirty = true;
-                    self.status_msg = "Equation updated".into();
-                }
-            }
+            // No parsed block currently carries this index (blocks out of sync).
+            // Do NOT guess via a divergent ordinal + unwrapped replace: extract_equations
+            // counts only $$/\[ openers while parse_document also indexes environment
+            // blocks, so the ordinals diverge, and a bare replace_range (no $$ wrapper)
+            // would corrupt the block into inline text. Fail safe instead - the caller
+            // re-parses before showing the editor, so this branch is effectively unreachable.
+            self.status_msg = "Could not locate the equation to update; reopen it.".into();
         }
     }
 
