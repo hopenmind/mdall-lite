@@ -13,7 +13,7 @@
 use base64::Engine as _;
 use mdall_core::editor::{self, BlockKind};
 use mdall_core::export::PdfMetadata;
-use mdall_core::{convert, equation_renderer, export_typst, inline_math, render, source_embed, stats};
+use mdall_core::{convert, equation_renderer, export_typst, inline_math, purify, render, source_embed, stats};
 use serde_json::{json, Map, Value};
 use std::io::{self, BufRead, Write};
 use std::path::Path;
@@ -37,6 +37,10 @@ What it does:
 - Convert a LaTeX equation to Typst or Unicode (convert_latex).
 - Inspect content without converting: analyze_document (counts, outline, reading
   time) and extract_equations (every display + inline equation).
+- Purify text for LLM watermarks and encoding artifacts: purify_audit (report
+  only), purify_sanitize (strip watermarks, normalize encoding), and
+  purify_decontaminate (also remove LLM tics + French typography). Math zones
+  and code stay frozen.
 
 Typical scientific round-trip: convert_file a Markdown paper to .docx, the
 supervisor annotates it in Word, then recover_source rebuilds the exact source.
@@ -246,6 +250,51 @@ fn tool_defs() -> Value {
                 },
                 "additionalProperties": false
             }
+        },
+        {
+            "name": "purify_audit",
+            "description": "Audit a text / Markdown / code file for LLM watermarks, hidden Unicode and encoding artifacts, WITHOUT modifying it. Returns a structured JSON report (counts per artifact type, watermark total). Detects Unicode Tag watermarks, variation selectors, zero-width chars, directional overrides, homoglyphs, special spaces, smart quotes, unicode dashes and CRLF. Frozen zones (code, YAML/JSON, front matter) and MATH zones ($...$, $$...$$) are reported but never counted as changes.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "input":       { "type": "string", "description": "Absolute path to the file to audit." },
+                    "format_hint": { "type": "string", "enum": ["markdown", "prose", "frozen", "code"], "description": "Force the segmentation strategy (default: detect from extension / content)." }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+            }
+        },
+        {
+            "name": "purify_sanitize",
+            "description": "Strip LLM watermarks and normalize encoding artifacts in a file (safe default). Removes hidden Unicode (Tag watermarks, zero-width, directional overrides, control codes), fixes homoglyphs and special spaces, normalizes unicode dashes to '-' and CRLF to LF. Frozen zones (code, YAML/JSON, front matter, string literals) and MATH zones ($...$, $$...$$, \\(..\\), \\[..\\]) are preserved. Writes in place, or to output_path. Returns a JSON report.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "input":             { "type": "string", "description": "Absolute path to the file to sanitize." },
+                    "output_path":       { "type": "string", "description": "Optional path to write to (default: overwrite the input in place)." },
+                    "format_hint":       { "type": "string", "enum": ["markdown", "prose", "frozen", "code"], "description": "Force the segmentation strategy (default: detect)." },
+                    "preserve_safelist": { "type": "array", "items": { "type": "string" }, "description": "Zero-width characters to keep (functional markers), each a single-char string." }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+            }
+        },
+        {
+            "name": "purify_decontaminate",
+            "description": "Full decontamination: everything purify_sanitize does, PLUS (opt-in) removal of LLM conversational tics (opening fillers, closing hedges, robotic self-reference, in French and English) and optional French Imprimerie Nationale typography (NBSP before ;!?, guillemet spacing). Tics and typography apply to PROSE zones only; code, frozen data and MATH are never touched. Writes in place, or to output_path. Returns a JSON report.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "input":               { "type": "string", "description": "Absolute path to the file." },
+                    "output_path":         { "type": "string", "description": "Optional path to write to (default: in place)." },
+                    "format_hint":         { "type": "string", "enum": ["markdown", "prose", "frozen", "code"], "description": "Force the segmentation strategy (default: detect)." },
+                    "preserve_safelist":   { "type": "array", "items": { "type": "string" }, "description": "Zero-width characters to keep." },
+                    "apply_fr_typography": { "type": "boolean", "description": "Apply French typography spacing (default true)." },
+                    "apply_tic_removal":   { "type": "boolean", "description": "Remove LLM conversational tics (default true)." }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+            }
         }
     ])
 }
@@ -272,6 +321,9 @@ fn handle_call(params: Option<&Value>, id: Value) -> Value {
         "convert_latex" => call_convert_latex(&args),
         "extract_equations" => call_extract_equations(&args),
         "analyze_document" => call_analyze_document(&args),
+        "purify_audit" => call_purify_audit(&args),
+        "purify_sanitize" => call_purify_sanitize(&args),
+        "purify_decontaminate" => call_purify_decontaminate(&args),
         other => Err(format!("unknown tool '{}'", other)),
     };
 
@@ -415,6 +467,72 @@ fn call_inspect_docx(args: &Value) -> Result<Vec<Value>, String> {
         Ok(Err(e)) => json!({ "input": input, "reversible": false, "reason": e }),
     };
     Ok(vec![text_block(&pretty(&v))])
+}
+
+/// Map an optional `format_hint` argument to a `DocFormat`.
+fn purify_format_hint(args: &Value) -> Option<purify::DocFormat> {
+    args.get("format_hint")
+        .and_then(Value::as_str)
+        .and_then(|s| match s.to_ascii_lowercase().as_str() {
+            "markdown" | "md" => Some(purify::DocFormat::Markdown),
+            "prose" | "txt" | "text" => Some(purify::DocFormat::Prose),
+            "frozen" | "yaml" | "json" | "toml" => Some(purify::DocFormat::Frozen),
+            "code" => Some(purify::DocFormat::Code),
+            _ => None,
+        })
+}
+
+/// Shared body of the three purify tools: read the file (UTF-8, lossy), run the
+/// pipeline behind a panic firewall, write the result for non-audit modes, and
+/// return the JSON report.
+fn run_purify(args: &Value, mode: purify::PurifyMode) -> Result<Vec<Value>, String> {
+    let input = str_arg(args, "input")?;
+    let bytes = std::fs::read(input).map_err(|e| format!("cannot read {}: {}", input, e))?;
+    let raw = String::from_utf8_lossy(&bytes).into_owned();
+
+    let safelist: Vec<char> = args
+        .get("preserve_safelist")
+        .and_then(Value::as_array)
+        .map(|a| {
+            a.iter()
+                .filter_map(Value::as_str)
+                .filter_map(|s| s.chars().next())
+                .collect()
+        })
+        .unwrap_or_default();
+
+    let opts = purify::PurifyOptions {
+        mode,
+        format: purify_format_hint(args),
+        apply_fr_typography: args.get("apply_fr_typography").and_then(Value::as_bool).unwrap_or(true),
+        apply_tic_removal: args.get("apply_tic_removal").and_then(Value::as_bool).unwrap_or(true),
+        preserve_safelist: safelist,
+    };
+
+    // Panic firewall, consistent with the other file-input tools.
+    let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        purify::purify_str(&raw, Some(input), &opts)
+    }))
+    .map_err(|_| "purification panicked on this file (likely malformed)".to_string())?;
+
+    let report = purify::report_json(&outcome.report);
+    if mode == purify::PurifyMode::Audit {
+        return Ok(vec![text_block(&report)]);
+    }
+    let out_path = args.get("output_path").and_then(Value::as_str).unwrap_or(input);
+    std::fs::write(out_path, outcome.text.as_bytes())
+        .map_err(|e| format!("cannot write {}: {}", out_path, e))?;
+    Ok(vec![text_block(&format!("{}\n\nwrote purified output -> {}", report, out_path))])
+}
+
+fn call_purify_audit(args: &Value) -> Result<Vec<Value>, String> {
+    run_purify(args, purify::PurifyMode::Audit)
+}
+fn call_purify_sanitize(args: &Value) -> Result<Vec<Value>, String> {
+    run_purify(args, purify::PurifyMode::Sanitize)
+}
+fn call_purify_decontaminate(args: &Value) -> Result<Vec<Value>, String> {
+    run_purify(args, purify::PurifyMode::Decontaminate)
 }
 
 fn call_render_equation(args: &Value) -> Result<Vec<Value>, String> {

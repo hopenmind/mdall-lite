@@ -37,6 +37,9 @@ cargo build --release -p mdall-mcp
 | `convert_latex` | `{latex, to?}` : LaTeX -> Typst and/or a Unicode approximation. |
 | `extract_equations` | `{input` or `markdown}` : every display + inline equation, as JSON. |
 | `analyze_document` | `{input` or `markdown}` : word/heading/equation counts, outline, reading time. |
+| `purify_audit` | `{input, format_hint?}` : report LLM watermarks + encoding artifacts as JSON; no write. |
+| `purify_sanitize` | `{input, output_path?, format_hint?, preserve_safelist?}` : strip watermarks / normalize encoding (unicode dashes, homoglyphs, zero-width, CRLF); code + math frozen; writes in place or to output_path. |
+| `purify_decontaminate` | `{input, output_path?, format_hint?, apply_fr_typography?, apply_tic_removal?}` : sanitize + remove LLM tics + French typography (prose zones only). |
 
 It also exposes two MCP **prompts** (`scientific_roundtrip`, `extract_math`) that script the
 common workflows, and returns server `instructions` on initialize so a client knows the
