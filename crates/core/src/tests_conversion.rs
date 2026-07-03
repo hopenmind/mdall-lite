@@ -363,6 +363,55 @@ fn docx_recovers_after_source_entry_stripped() {
     cleanup(&stripped);
 }
 
+#[test]
+fn docx_comment_latex_roundtrips_through_md_to_all_author() {
+    // Layer-2-via-comments recovery binds two hardcoded literals: the exporter
+    // writes w:author="MD-TO-ALL" comments carrying the LaTeX, and source_embed
+    // mines exactly that author. A silent drift on either side kills comment-based
+    // recovery (CLAUDE.md 3: this legacy literal must not change). Round-trips both
+    // sides through the real export + the real extractor.
+    use std::io::Read;
+    let md = "# Title\n\n$$E = mc^2$$\n";
+    let out = tmp("comment_rt", "docx");
+    export_formats::export_docx(md, &out, &meta(), None).expect("export_docx failed");
+
+    let file = fs::File::open(&out).unwrap();
+    let mut zip = zip::ZipArchive::new(file).unwrap();
+    let mut comments = String::new();
+    for i in 0..zip.len() {
+        let mut e = zip.by_index(i).unwrap();
+        if !e.name().ends_with(".xml") {
+            continue;
+        }
+        let mut s = String::new();
+        if e.read_to_string(&mut s).is_err() {
+            continue;
+        }
+        if s.contains("w:author=\"MD-TO-ALL\"") {
+            comments = s;
+            break;
+        }
+    }
+    assert!(
+        !comments.is_empty(),
+        "export wrote no MD-TO-ALL-authored comment for the equation (write-side literal drifted?)"
+    );
+
+    // Read side: the extractor recovers the LaTeX from exactly that author's comments.
+    let map = source_embed::extract_latex_from_comments_xml(&comments);
+    assert!(
+        map.values().any(|v| v.contains("mc^2")),
+        "extract_latex_from_comments_xml did not recover the equation from the MD-TO-ALL comment: {map:?}"
+    );
+    // A foreign author must be ignored - we only mine our own embedded data.
+    let foreign = comments.replace("MD-TO-ALL", "SomeReviewer");
+    assert!(
+        source_embed::extract_latex_from_comments_xml(&foreign).is_empty(),
+        "comments from a foreign author must not be mined"
+    );
+    cleanup(&out);
+}
+
 // ── Edge cases: conversions must NEVER panic on hostile input ──────────────────
 
 fn run_all_text_exports(md: &str, tag: &str) {

@@ -322,7 +322,7 @@ fn read_zip_entry_string(
 }
 
 /// Parse `word/comments.xml` and return a map of comment-id → LaTeX source.
-fn extract_latex_from_comments_xml(xml: &str) -> std::collections::HashMap<u32, String> {
+pub(crate) fn extract_latex_from_comments_xml(xml: &str) -> std::collections::HashMap<u32, String> {
     let mut map = std::collections::HashMap::new();
 
     // Pattern: <w:comment w:id="N" w:author="MD-TO-ALL" ...>
