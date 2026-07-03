@@ -806,6 +806,16 @@ pub fn extract_equations(markdown: &str) -> Vec<String> {
             continue;
         }
         if in_equation {
+            // An unclosed $$/\[ bounded by a blank line or a heading is malformed;
+            // abandon it instead of swallowing the rest of the document into one
+            // phantom equation (mirrors the parse_document bounding, commit 2e79ef5).
+            let lt = line.trim();
+            if lt.is_empty() || lt.starts_with('#') {
+                in_equation = false;
+                equation_buf.clear();
+                i += 1;
+                continue;
+            }
             let sep = equation_buf.find('\x00').unwrap_or(0);
             let close_marker = equation_buf[..sep].to_string();
             let content_so_far = equation_buf[sep + 1..].to_string();
@@ -833,10 +843,7 @@ pub fn extract_equations(markdown: &str) -> Vec<String> {
         }
         i += 1;
     }
-    if in_equation && !equation_buf.is_empty() {
-        let sep = equation_buf.find('\x00').unwrap_or(0);
-        equations.push(equation_buf[sep + 1..].to_string());
-    }
+    // An unclosed $$/\[ at EOF is malformed - do NOT flush it as a phantom equation.
     equations
 }
 

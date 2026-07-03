@@ -412,6 +412,40 @@ fn docx_comment_latex_roundtrips_through_md_to_all_author() {
     cleanup(&out);
 }
 
+#[test]
+fn extract_equations_edge_cases() {
+    // extract_equations is the primitive behind the MCP extract_equations tool and
+    // analyze_document. Pin its three tricky behaviors.
+    use crate::render::extract_equations;
+
+    // 1. $$ inside a fenced code block is NOT an equation.
+    let fenced = "text\n\n```\n$$ not_an_equation $$\n```\n\nreal:\n\n$$a+b$$\n";
+    let eqs = extract_equations(fenced);
+    assert_eq!(
+        eqs,
+        vec!["a+b".to_string()],
+        "must ignore $$ inside a code fence; got {eqs:?}"
+    );
+
+    // 2. A multi-line $$ block is captured whole, as one equation.
+    let multi = "$$\n\\int_0^1 x\\,dx\n= \\tfrac12\n$$\n";
+    let eqs = extract_equations(multi);
+    assert_eq!(eqs.len(), 1, "a multi-line $$ block is one equation; got {eqs:?}");
+    assert!(
+        eqs[0].contains("int_0^1") && eqs[0].contains("tfrac12"),
+        "the multi-line body must be captured whole; got {eqs:?}"
+    );
+
+    // 3. An unterminated $$ must not hang, and must not swallow the following
+    //    heading/text into a phantom equation.
+    let unclosed = "$$\na+b\n\n# Heading\n\nmore text\n";
+    let eqs = extract_equations(unclosed);
+    assert!(
+        !eqs.iter().any(|e| e.contains("Heading")),
+        "an unclosed $$ must not capture the following heading; got {eqs:?}"
+    );
+}
+
 // ── Edge cases: conversions must NEVER panic on hostile input ──────────────────
 
 fn run_all_text_exports(md: &str, tag: &str) {
