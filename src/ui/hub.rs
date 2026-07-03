@@ -415,6 +415,23 @@ impl MdApp {
                             }
                         }
 
+                        // ── Clean / Sanitize (strip LLM watermarks + encoding) ────
+                        ui.add_space(8.0);
+                        {
+                            let clean_label = if single { "Clean / Sanitize" } else { "Clean / Sanitize all" };
+                            if ui.add_sized([ui.available_width(), 32.0],
+                                egui::Button::new(egui::RichText::new(
+                                    format!("{}   (strip LLM watermarks -> *_clean.md)", clean_label))
+                                    .size(12.5).color(theme::TEXT_2))
+                                    .fill(theme::SURFACE_SOFT)
+                                    .stroke(egui::Stroke::new(1.0, theme::BORDER)))
+                                .on_hover_text("Import to Markdown, remove LLM watermarks / encoding artifacts (math and code preserved), and write a cleaned .md next to each file.")
+                                .clicked()
+                            {
+                                self.clean_hub_files();
+                            }
+                        }
+
                         // ── Batch progress (bronze loader in the border palette) ──
                         if self.conversion_hub.converting {
                             let done = self.conversion_hub.queue_index;
@@ -639,6 +656,66 @@ impl MdApp {
                 self.conversion_hub.is_error = true;
             }
         }
+    }
+
+    /// Clean (sanitize) every loaded file: import to Markdown, run the purify
+    /// core (strip LLM watermarks + normalize encoding; math and code preserved),
+    /// and write a cleaned `<stem>_clean.md` next to each source. Never overwrites
+    /// the input. Default mode is sanitize (safe); the MCP / CLI expose audit and
+    /// decontaminate for finer control.
+    fn clean_hub_files(&mut self) {
+        use mdall_core::purify::{self, DocFormat, PurifyMode, PurifyOptions};
+        let paths: Vec<std::path::PathBuf> =
+            self.conversion_hub.files.iter().map(|f| f.path.clone()).collect();
+        if paths.is_empty() {
+            return;
+        }
+        let opts = PurifyOptions {
+            mode: PurifyMode::Sanitize,
+            format: Some(DocFormat::Markdown),
+            ..Default::default()
+        };
+        let mut ok = 0usize;
+        let mut last_name = String::new();
+        for (i, path) in paths.iter().enumerate() {
+            let res: Result<std::path::PathBuf, String> = (|| {
+                let md = Self::import_to_md(path)?;
+                let outcome = purify::purify_str(&md, None, &opts);
+                let stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+                let dir = path.parent().unwrap_or_else(|| std::path::Path::new("."));
+                let out = dir.join(format!("{}_clean.md", stem));
+                std::fs::write(&out, outcome.text.as_bytes()).map_err(|e| e.to_string())?;
+                Ok(out)
+            })();
+            match res {
+                Ok(out) => {
+                    ok += 1;
+                    last_name = out.file_name().unwrap_or_default().to_string_lossy().to_string();
+                    if let Some(f) = self.conversion_hub.files.get_mut(i) {
+                        f.status = FileStatus::Done;
+                        f.output_path = Some(out);
+                        f.message = "Cleaned".into();
+                    }
+                }
+                Err(e) => {
+                    if let Some(f) = self.conversion_hub.files.get_mut(i) {
+                        f.status = FileStatus::Failed;
+                        f.message = e;
+                    }
+                }
+            }
+        }
+        let total = paths.len();
+        self.conversion_hub.is_error = ok < total;
+        self.conversion_hub.status = if ok == total {
+            if total == 1 {
+                format!("Cleaned -> {}", last_name)
+            } else {
+                format!("Cleaned {} files -> *_clean.md", ok)
+            }
+        } else {
+            format!("Cleaned {}/{}, {} failed", ok, total, total - ok)
+        };
     }
 
     /// One file row in the hub list: status dot, ext badge, name, options + remove.
