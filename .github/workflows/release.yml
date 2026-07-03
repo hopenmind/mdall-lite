@@ -1,0 +1,155 @@
+# Build MD -> ALL release bundles on GitHub's own runners, natively per OS.
+#
+# Each target is built on its own hardware, so no cross toolchain is ever needed
+# (Windows ARM64 in particular builds natively). Every job runs the conversion
+# test suite and an end-to-end smoke conversion to prove the output is identical
+# and functional on that OS, then provides the bundled rendering engine for the
+# Tier 1 PDF path.
+#
+# Rendering engine per target:
+#   - Windows x64   : fetched by scripts/setup-engine.ps1, hidden by the installer
+#   - Linux x64     : fetched by scripts/fetch-engine.sh into engine/
+#   - macOS arm64   : fetched by scripts/fetch-engine.sh into engine/
+#
+# Windows ARM64 is intentionally not built: the KaTeX JS engine (ducc-sys /
+# duktape) fails to compile on aarch64-pc-windows-msvc (duktape cannot determine
+# its intptr type there). The target is on hold pending an alternative JS backend
+# so the change can be validated without risking the three working builds.
+#
+# Triggers: a version tag (vX.Y.Z) produces downloadable release assets; a manual
+# run just uploads the bundles as workflow artifacts.
+
+name: build
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Harden crate downloads against transient crates.io HTTP/2 hiccups on CI runners
+# (curl "[16] Error in the HTTP2 framing layer"): retry hard and drop HTTP/2
+# multiplexing so fetches fall back to plain sequential requests.
+env:
+  CARGO_NET_RETRY: "10"
+  CARGO_HTTP_MULTIPLEXING: "false"
+
+jobs:
+  build:
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: windows-latest, label: win-x64,     os: windows, chromium: ungoogled }
+          - { runner: ubuntu-latest,  label: linux-x64,   os: linux,   chromium: cft, cft_platform: linux64 }
+          - { runner: macos-latest,   label: macos-arm64, os: macos,   chromium: cft, cft_platform: mac-arm64 }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Linux GUI build deps
+        if: matrix.os == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev libssl-dev
+
+      # Prove conversion is identical and functional on this OS.
+      - name: Conversion test suite
+        run: cargo test -p mdall-core --release
+
+      - name: Build release binaries
+        run: cargo build --release --workspace --bins
+
+      # End-to-end smoke: a document with inline + display LaTeX must convert.
+      - name: Smoke conversion (md -> html, docx)
+        shell: bash
+        run: |
+          bin="target/release/mdall-convert"
+          [ "${{ matrix.os }}" = "windows" ] && bin="$bin.exe"
+          printf '# Title\n\nInline $E=mc^2$ and a block:\n\n$$\\int_0^1 x\\,dx = \\tfrac12$$\n' > smoke.md
+          "$bin" smoke.md smoke.html
+          "$bin" smoke.md smoke.docx
+          test -s smoke.html && test -s smoke.docx && echo "smoke OK"
+
+      - name: Bundle engine (Windows x64)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: ./scripts/setup-engine.ps1
+      - name: Bundle engine (Chrome for Testing, Unix)
+        if: matrix.chromium == 'cft'
+        shell: bash
+        run: bash scripts/fetch-engine.sh ${{ matrix.cft_platform }}
+
+      # Windows: one self-extracting installer. It extracts the engine into a
+      # private per-user folder (hidden), so the install has no engine folder
+      # next to the application.
+      - name: Build Windows installer
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          cargo build --release --manifest-path installer/Cargo.toml
+          ./scripts/make-installer.ps1 -SkipBuild
+
+      # Unix: portable bundle (editor + CLI + MCP + engine/ next to the app).
+      - name: Stage bundle (Unix)
+        if: matrix.os != 'windows'
+        shell: bash
+        run: |
+          full="mdall-${{ matrix.label }}"
+          mkdir -p "$full"
+          cp "target/release/mdall" "target/release/mdall-convert" "target/release/mdall-mcp" "$full/"
+          if [ -d chromium ]; then cp -r chromium "$full/engine"; fi
+
+      # Standalone MCP server (all OSes): the headless binary on its own.
+      - name: Stage MCP server
+        shell: bash
+        run: |
+          ext=""; [ "${{ matrix.os }}" = "windows" ] && ext=".exe"
+          mcp="mdall-mcp-${{ matrix.label }}"
+          mkdir -p "$mcp"
+          cp "target/release/mdall-mcp$ext" "$mcp/"
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.os == 'windows'
+        with:
+          name: mdall-${{ matrix.label }}-installer
+          path: dist/*-installer.exe
+      - uses: actions/upload-artifact@v4
+        if: matrix.os != 'windows'
+        with:
+          name: mdall-${{ matrix.label }}
+          path: mdall-${{ matrix.label }}/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mdall-mcp-${{ matrix.label }}
+          path: mdall-mcp-${{ matrix.label }}/
+
+      - name: Package MCP zip (Windows)
+        if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows'
+        shell: pwsh
+        run: Compress-Archive -Path "mdall-mcp-${{ matrix.label }}/*" -DestinationPath "mdall-mcp-${{ matrix.label }}.zip"
+      - name: Package zips (Unix)
+        if: startsWith(github.ref, 'refs/tags/') && matrix.os != 'windows'
+        shell: bash
+        run: |
+          (cd "mdall-${{ matrix.label }}" && zip -r "../mdall-${{ matrix.label }}.zip" .)
+          (cd "mdall-mcp-${{ matrix.label }}" && zip -r "../mdall-mcp-${{ matrix.label }}.zip" .)
+
+      - name: Attach to release (Windows installer)
+        if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*-installer.exe
+            mdall-mcp-${{ matrix.label }}.zip
+      - name: Attach to release (Unix bundle)
+        if: startsWith(github.ref, 'refs/tags/') && matrix.os != 'windows'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            mdall-${{ matrix.label }}.zip
+            mdall-mcp-${{ matrix.label }}.zip

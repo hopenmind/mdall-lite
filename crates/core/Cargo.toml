@@ -1,0 +1,46 @@
+[package]
+name = "mdall-core"
+version = "3.0.0"
+edition = "2021"
+description = "MD -> ALL core: document model, conversion engine, equation rendering. Pure logic, no UI, no network at runtime (Typst fonts + KaTeX assets embedded)."
+
+[lib]
+name = "mdall_core"
+path = "src/lib.rs"
+
+[dependencies]
+# Markdown / document
+pulldown-cmark = "0.12"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = "0.4"
+
+# Equation rendering (embedded fonts, offline)
+typst = "0.11"
+typst-pdf = "0.11"
+typst-render = "0.11"
+typst-svg = "0.11"
+typst-assets = { version = "0.11", features = ["fonts"] }
+comemo = "0.4"
+
+# PDF / HTML export
+genpdf = { package = "rckive-genpdf", version = "0.4", features = ["images"] }
+lopdf = "0.34"
+katex = { version = "0.4", default-features = false, features = ["duktape"] }
+
+# XML parsing (namespace-aware import: DOCX / ODT)
+quick-xml = "0.36"
+
+# Spell checking — pure-Rust, Hunspell-compatible (.dic/.aff). Offline; no C deps.
+spellbook = "0.4"
+
+# Containers / images
+zip = { version = "2", default-features = false, features = ["deflate"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "bmp", "webp", "tiff"] }
+epub-builder = "0.7"
+base64 = "0.22"
+
+# Rendering-engine PDF tier (headless CDP; falls back gracefully if absent)
+chromiumoxide = { version = "0.5", features = ["tokio-runtime"], default-features = false }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+futures-util = "0.3.32"

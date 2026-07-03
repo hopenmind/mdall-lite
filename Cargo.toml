@@ -1,0 +1,48 @@
+[workspace]
+members = ["crates/core", "crates/convert", "crates/mcp"]
+
+[package]
+name = "mdall"
+version = "3.0.3"
+edition = "2021"
+description = "MD -> ALL: Markdown editor with KaTeX rendering and PDF export"
+authors = ["Hope 'n Mind <contact@hopenmind.com>"]
+
+[dependencies]
+# The pure logic core (document model, conversion, equation rendering).
+mdall-core = { path = "crates/core" }
+
+chromiumoxide = { version = "0.5", features = ["tokio-runtime"], default-features = false }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+typst = "0.11"
+typst-pdf = "0.11"
+eframe = "0.29"
+egui_extras = { version = "0.29", features = ["image", "svg", "file"] }
+pulldown-cmark = "0.12"
+katex = { version = "0.4", default-features = false, features = ["duktape"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rfd = "0.15"
+open = "5"
+chrono = "0.4"
+lopdf = "0.34"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp", "tiff"] }
+genpdf = { package = "rckive-genpdf", version = "0.4", features = ["images"] }
+comemo = "0.4"
+futures-util = "0.3.32"
+typst-render = "0.11"
+typst-assets = { version = "0.11", features = ["fonts"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+epub-builder = "0.7"
+# Opt-in dictionary downloads (rustls = pure-Rust TLS; only used on user action).
+ureq = { version = "2", default-features = false, features = ["tls"] }
+typst-svg = "0.11"
+
+[build-dependencies]
+winresource = "0.1"
+
+[profile.release]
+opt-level = "z"
+lto = "thin"
+strip = true
+codegen-units = 1

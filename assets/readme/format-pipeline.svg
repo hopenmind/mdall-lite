@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 380" width="900" height="380" font-family="Georgia, 'Times New Roman', serif">
+  <defs>
+    <linearGradient id="fpbg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FAF8F4"/>
+      <stop offset="100%" style="stop-color:#F4EEE3"/>
+    </linearGradient>
+    <marker id="fpGold" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#B07C08"/>
+    </marker>
+    <marker id="fpGreen" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#2D7A45"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="380" fill="url(#fpbg)" rx="12"/>
+  <rect x="1" y="1" width="898" height="378" fill="none" stroke="#E0D5C4" stroke-width="1.5" rx="11"/>
+  <text x="450" y="32" font-size="13" font-weight="700" fill="#9B8878" text-anchor="middle" letter-spacing="3" font-family="'Segoe UI', system-ui, sans-serif">FORMAT BRIDGE . ANY IN, ANY OUT</text>
+
+  <!-- IMPORT panel -->
+  <rect x="28" y="58" width="250" height="292" rx="8" fill="#FFFFFF" stroke="#E0D5C4" stroke-width="1.4"/>
+  <rect x="28" y="58" width="250" height="5" rx="4" fill="#C9920A"/>
+  <text x="153" y="85" font-size="13" font-weight="700" fill="#2A1F0F" text-anchor="middle">IMPORT</text>
+  <text x="153" y="101" font-size="9.5" fill="#9B8878" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif">23 formats auto-converted to Markdown</text>
+  <g font-size="11" fill="#2A1F0F" font-family="'Segoe UI', system-ui, sans-serif">
+    <rect x="42" y="114" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="92" y="131" text-anchor="middle">DOCX</text>
+    <rect x="158" y="114" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="208" y="131" text-anchor="middle">ODT</text>
+    <rect x="42" y="145" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="92" y="162" text-anchor="middle">HTML</text>
+    <rect x="158" y="145" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="208" y="162" text-anchor="middle">EPUB</text>
+    <rect x="42" y="176" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="92" y="193" text-anchor="middle">RTF</text>
+    <rect x="158" y="176" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="208" y="193" text-anchor="middle">LaTeX</text>
+    <rect x="42" y="207" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="92" y="224" text-anchor="middle">Org</text>
+    <rect x="158" y="207" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="208" y="224" text-anchor="middle">reST</text>
+    <rect x="42" y="238" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="92" y="255" text-anchor="middle">AsciiDoc</text>
+    <rect x="158" y="238" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="208" y="255" text-anchor="middle">Typst</text>
+    <rect x="42" y="269" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="92" y="286" text-anchor="middle">Jupyter</text>
+    <rect x="158" y="269" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="208" y="286" text-anchor="middle">CSV</text>
+  </g>
+  <text x="153" y="320" font-size="9.5" fill="#9B8878" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif">FB2 . EML . PPTX . wiki . bib . and more</text>
+
+  <!-- Core hub -->
+  <rect x="350" y="150" width="200" height="104" rx="10" fill="#C9920A" stroke="#B07C08" stroke-width="1.6"/>
+  <text x="450" y="186" font-size="17" font-weight="700" fill="#2A1F0F" text-anchor="middle">Markdown core</text>
+  <text x="450" y="208" font-size="11" fill="#3A2A12" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif">plus LaTeX equations</text>
+  <text x="450" y="230" font-size="10" fill="#4A3A1E" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif">lossless intermediate</text>
+
+  <path d="M 278 202 L 348 202" fill="none" stroke="#B07C08" stroke-width="2" marker-end="url(#fpGold)"/>
+  <path d="M 552 202 L 620 202" fill="none" stroke="#2D7A45" stroke-width="2" marker-end="url(#fpGreen)"/>
+
+  <!-- EXPORT panel -->
+  <rect x="622" y="58" width="250" height="292" rx="8" fill="#FFFFFF" stroke="#E0D5C4" stroke-width="1.4"/>
+  <rect x="622" y="58" width="250" height="5" rx="4" fill="#2D7A45"/>
+  <text x="747" y="85" font-size="13" font-weight="700" fill="#2A1F0F" text-anchor="middle">EXPORT</text>
+  <text x="747" y="101" font-size="9.5" fill="#9B8878" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif">every format back out, equations intact</text>
+  <g font-size="11" fill="#2A1F0F" font-family="'Segoe UI', system-ui, sans-serif">
+    <rect x="636" y="114" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="686" y="131" text-anchor="middle">PDF</text>
+    <rect x="752" y="114" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="802" y="131" text-anchor="middle">DOCX</text>
+    <rect x="636" y="145" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="686" y="162" text-anchor="middle">HTML</text>
+    <rect x="752" y="145" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="802" y="162" text-anchor="middle">EPUB</text>
+    <rect x="636" y="176" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="686" y="193" text-anchor="middle">ODT</text>
+    <rect x="752" y="176" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="802" y="193" text-anchor="middle">RTF</text>
+    <rect x="636" y="207" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="686" y="224" text-anchor="middle">LaTeX</text>
+    <rect x="752" y="207" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="802" y="224" text-anchor="middle">Typst</text>
+    <rect x="636" y="238" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="686" y="255" text-anchor="middle">Org</text>
+    <rect x="752" y="238" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="802" y="255" text-anchor="middle">reST</text>
+    <rect x="636" y="269" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="686" y="286" text-anchor="middle">AsciiDoc</text>
+    <rect x="752" y="269" width="100" height="25" rx="6" fill="#F7F1E4" stroke="#E0D5C4"/><text x="802" y="286" text-anchor="middle">TXT</text>
+  </g>
+  <text x="747" y="320" font-size="9.5" fill="#9B8878" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif">plus per-equation SVG with embedded LaTeX</text>
+
+  <text x="450" y="364" font-size="10" fill="#6B5440" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif">Every import format has a matching export path. Pure Rust, no external converters.</text>
+  <text x="872" y="372" font-size="9" fill="#CFC2AC" text-anchor="end" font-family="'Segoe UI', system-ui, sans-serif">Hope n' Mind SASU</text>
+</svg>

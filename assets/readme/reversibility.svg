@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" width="900" height="320">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FAF8F4"/>
+      <stop offset="100%" style="stop-color:#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="gGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2D7A45"/>
+      <stop offset="100%" style="stop-color:#2D7A45"/>
+    </linearGradient>
+    <linearGradient id="gBlue" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#C9920A"/>
+      <stop offset="100%" style="stop-color:#B07C08"/>
+    </linearGradient>
+    <marker id="arrowFwd" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#C9920A"/>
+    </marker>
+    <marker id="arrowBack" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#2D7A45"/>
+    </marker>
+    <marker id="arrowEmbed" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#7A5C46"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="320" fill="url(#bg)" rx="12"/>
+  <rect x="1" y="1" width="898" height="318" fill="none" stroke="#E0D5C4" stroke-width="1" rx="11"/>
+
+  <!-- Title -->
+  <text x="450" y="30" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" font-weight="600" fill="#9B8878" text-anchor="middle" letter-spacing="3">REVERSIBLE DOCX EXPORT . THE LOSSLESS CYCLE</text>
+
+  <!-- -- LEFT: MD source -- -->
+  <rect x="30" y="58" width="155" height="185" rx="8" fill="#FFFFFF" stroke="#C9920A" stroke-width="1.5"/>
+  <rect x="30" y="58" width="155" height="5" rx="4" fill="#B07C08"/>
+  <text x="107" y="83" font-family="'Segoe UI', system-ui, sans-serif" font-size="12" font-weight="700" fill="#2A1F0F" text-anchor="middle">Markdown Source</text>
+  <!-- code lines simulation -->
+  <rect x="44" y="94" width="95" height="7" rx="2" fill="#EDE6DA"/>
+  <rect x="44" y="107" width="120" height="7" rx="2" fill="#EDE6DA"/>
+  <!-- equation block -->
+  <rect x="44" y="122" width="127" height="42" rx="3" fill="#F4ECD6" stroke="#B07C08" stroke-width="1"/>
+  <text x="107" y="138" font-family="'Segoe UI', monospace, sans-serif" font-size="9" fill="#C9920A" text-anchor="middle">$$</text>
+  <text x="107" y="152" font-family="'Segoe UI', monospace, sans-serif" font-size="10" fill="#7A5C46" text-anchor="middle">\nabla^2 \phi = \rho</text>
+  <text x="107" y="163" font-family="'Segoe UI', monospace, sans-serif" font-size="9" fill="#C9920A" text-anchor="middle">$$</text>
+  <rect x="44" y="172" width="110" height="7" rx="2" fill="#EDE6DA"/>
+  <rect x="44" y="185" width="75" height="7" rx="2" fill="#EDE6DA"/>
+  <text x="107" y="228" font-family="'Segoe UI', monospace, sans-serif" font-size="9" fill="#A89684" text-anchor="middle">KaTeX . LaTeX</text>
+
+  <!-- Forward arrow -->
+  <path d="M187 140 Q230 100 270 130" stroke="#C9920A" stroke-width="2" fill="none" marker-end="url(#arrowFwd)"/>
+  <text x="222" y="106" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" fill="#C9920A" text-anchor="middle">export</text>
+
+  <!-- -- CENTER: DOCX -- -->
+  <rect x="270" y="58" width="175" height="185" rx="8" fill="#FFFFFF" stroke="#2D7A45" stroke-width="2"/>
+  <rect x="270" y="58" width="175" height="5" rx="4" fill="url(#gGreen)"/>
+  <text x="357" y="83" font-family="'Segoe UI', system-ui, sans-serif" font-size="12" font-weight="700" fill="#2A1F0F" text-anchor="middle">DOCX File</text>
+  <text x="357" y="98" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" fill="#A89684" text-anchor="middle">( ZIP archive )</text>
+
+  <!-- Layer 1: PNG with tEXt -->
+  <rect x="283" y="108" width="149" height="38" rx="4" fill="#E8F1E6" stroke="#2D7A45" stroke-width="1"/>
+  <text x="357" y="122" font-family="'Segoe UI', monospace, sans-serif" font-size="9" fill="#2D7A45" text-anchor="middle">PNG equation image</text>
+  <text x="357" y="137" font-family="'Segoe UI', monospace, sans-serif" font-size="8.5" fill="#A89684" text-anchor="middle">+ tEXt chunk: LaTeX source</text>
+
+  <!-- Layer 2: SVG metadata -->
+  <rect x="283" y="152" width="149" height="38" rx="4" fill="#E8F1E6" stroke="#2D7A45" stroke-width="1"/>
+  <text x="357" y="166" font-family="'Segoe UI', monospace, sans-serif" font-size="9" fill="#2D7A45" text-anchor="middle">SVG equation fallback</text>
+  <text x="357" y="181" font-family="'Segoe UI', monospace, sans-serif" font-size="8.5" fill="#A89684" text-anchor="middle">+ &lt;metadata&gt; LaTeX source</text>
+
+  <!-- Layer 3: XML entry -->
+  <rect x="283" y="196" width="149" height="38" rx="4" fill="#E8F1E6" stroke="#2D7A45" stroke-width="1"/>
+  <text x="357" y="210" font-family="'Segoe UI', monospace, sans-serif" font-size="9" fill="#2D7A45" text-anchor="middle">md-to-all-source.xml</text>
+  <text x="357" y="225" font-family="'Segoe UI', monospace, sans-serif" font-size="8.5" fill="#A89684" text-anchor="middle">full markdown + all LaTeX</text>
+
+  <!-- Word annotations -->
+  <text x="357" y="256" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" fill="#9B8878" text-anchor="middle">Word ignores extra entries.</text>
+  <text x="357" y="268" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" fill="#9B8878" text-anchor="middle">Supervisor annotates freely.</text>
+
+  <!-- Back arrow -->
+  <path d="M447 155 Q490 105 535 130" stroke="#2D7A45" stroke-width="2" fill="none" marker-end="url(#arrowBack)"/>
+  <text x="495" y="104" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" fill="#2D7A45" text-anchor="middle">re-import</text>
+
+  <!-- -- RIGHT: Recovery -- -->
+  <rect x="535" y="58" width="165" height="185" rx="8" fill="#FFFFFF" stroke="#7A5C46" stroke-width="1.5"/>
+  <rect x="535" y="58" width="165" height="5" rx="4" fill="#5C4A38"/>
+  <text x="617" y="83" font-family="'Segoe UI', system-ui, sans-serif" font-size="12" font-weight="700" fill="#2A1F0F" text-anchor="middle">Recovered Source</text>
+
+  <!-- Strategy 1 -->
+  <rect x="548" y="96" width="139" height="46" rx="4" fill="#F3EAD5" stroke="#5C4A38" stroke-width="1"/>
+  <text x="617" y="112" font-family="'Segoe UI', monospace, sans-serif" font-size="9" fill="#7A5C46" text-anchor="middle">Strategy 1</text>
+  <text x="617" y="126" font-family="'Segoe UI', monospace, sans-serif" font-size="8.5" fill="#9B8878" text-anchor="middle">md-to-all-source.xml</text>
+  <text x="617" y="138" font-family="'Segoe UI', monospace, sans-serif" font-size="8.5" fill="#A89684" text-anchor="middle">-> full markdown recovered</text>
+
+  <!-- Strategy 2 -->
+  <rect x="548" y="148" width="139" height="46" rx="4" fill="#F3EAD5" stroke="#5C4A38" stroke-width="1"/>
+  <text x="617" y="164" font-family="'Segoe UI', monospace, sans-serif" font-size="9" fill="#7A5C46" text-anchor="middle">Strategy 2 (fallback)</text>
+  <text x="617" y="178" font-family="'Segoe UI', monospace, sans-serif" font-size="8.5" fill="#9B8878" text-anchor="middle">PNG/SVG tEXt chunks</text>
+  <text x="617" y="190" font-family="'Segoe UI', monospace, sans-serif" font-size="8.5" fill="#A89684" text-anchor="middle">-> equations recovered</text>
+
+  <!-- Result -->
+  <rect x="548" y="200" width="139" height="34" rx="4" fill="#E8F1E6" stroke="#2D7A45" stroke-width="1"/>
+  <text x="617" y="218" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" fill="#2D7A45" font-weight="700" text-anchor="middle">Lossless round-trip</text>
+  <text x="617" y="230" font-family="'Segoe UI', monospace, sans-serif" font-size="8.5" fill="#A89684" text-anchor="middle">Markdown + LaTeX intact</text>
+
+  <!-- -- RIGHT: Use case box -- -->
+  <rect x="720" y="58" width="158" height="185" rx="8" fill="#FAF8F4" stroke="#E0D5C4" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="799" y="82" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" font-weight="600" fill="#9B8878" text-anchor="middle">Research Workflow</text>
+  <line x1="730" y1="90" x2="868" y2="90" stroke="#E0D5C4" stroke-width="1"/>
+
+  <g font-family="'Segoe UI', system-ui, sans-serif" font-size="10" fill="#A89684">
+    <text x="733" y="110">1. Researcher writes in MD</text>
+    <text x="733" y="128">2. Exports -> DOCX</text>
+    <text x="733" y="146">3. Supervisor annotates</text>
+    <text x="733" y="164">    in Microsoft Word</text>
+    <text x="733" y="182">4. Researcher re-imports</text>
+    <text x="733" y="200">5. LaTeX intact, editable</text>
+    <text x="733" y="218">6. Annotations preserved</text>
+  </g>
+
+  <!-- Bottom note -->
+  <text x="450" y="292" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" fill="#A89684" text-anchor="middle">Triple redundancy: PNG tEXt chunk  .  SVG &lt;metadata&gt;  .  DOCX custom XML entry . survives any Word round-trip</text>
+  <text x="870" y="308" font-family="'Segoe UI', monospace, sans-serif" font-size="9" fill="#E0D5C4" text-anchor="end">Hope n' Mind SASU</text>
+</svg>
