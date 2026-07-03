@@ -1,15 +1,19 @@
-# Build MD -> ALL release bundles on GitHub's own runners, natively per OS.
+# Build MD -> ALL lite release bundles on GitHub's own runners, natively per OS.
 #
-# Each target is built on its own hardware, so no cross toolchain is ever needed
-# (Windows ARM64 in particular builds natively). Every job runs the conversion
-# test suite and an end-to-end smoke conversion to prove the output is identical
-# and functional on that OS, then provides the bundled rendering engine for the
-# Tier 1 PDF path.
+# Each target is built on its own hardware, so no cross toolchain is ever needed.
+# Every job runs the conversion test suite and an end-to-end smoke conversion to
+# prove the output is identical and functional on that OS, then provides the
+# bundled rendering engine for the Tier 1 PDF path.
 #
 # Rendering engine per target:
 #   - Windows x64   : fetched by scripts/setup-engine.ps1, hidden by the installer
 #   - Linux x64     : fetched by scripts/fetch-engine.sh into engine/
 #   - macOS arm64   : fetched by scripts/fetch-engine.sh into engine/
+#
+# Release assets per tag (vX.Y.Z):
+#   - mdall-lite_<label>.zip             portable bundle (app + CLI + MCP + engine)
+#   - mdall-lite_win-x64-installer.exe   Windows one-file self-extracting installer
+#   - mdall-lite_mcp-<label>.zip         headless MCP server on its own
 #
 # Windows ARM64 is intentionally not built: the KaTeX JS engine (ducc-sys /
 # duktape) fails to compile on aarch64-pc-windows-msvc (duktape cannot determine
@@ -43,9 +47,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { runner: windows-latest, label: win-x64,     os: windows, chromium: ungoogled }
-          - { runner: ubuntu-latest,  label: linux-x64,   os: linux,   chromium: cft, cft_platform: linux64 }
-          - { runner: macos-latest,   label: macos-arm64, os: macos,   chromium: cft, cft_platform: mac-arm64 }
+          - { runner: windows-latest, label: win-x64,     os: windows }
+          - { runner: ubuntu-latest,  label: linux-x64,   os: linux,   cft_platform: linux64 }
+          - { runner: macos-latest,   label: macos-arm64, os: macos,   cft_platform: mac-arm64 }
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -80,13 +84,13 @@ jobs:
         shell: pwsh
         run: ./scripts/setup-engine.ps1
       - name: Bundle engine (Chrome for Testing, Unix)
-        if: matrix.chromium == 'cft'
+        if: matrix.os != 'windows'
         shell: bash
         run: bash scripts/fetch-engine.sh ${{ matrix.cft_platform }}
 
       # Windows: one self-extracting installer. It extracts the engine into a
       # private per-user folder (hidden), so the install has no engine folder
-      # next to the application.
+      # next to the application. Stable output: dist/mdall-lite_win-x64-installer.exe
       - name: Build Windows installer
         if: matrix.os == 'windows'
         shell: pwsh
@@ -94,14 +98,28 @@ jobs:
           cargo build --release --manifest-path installer/Cargo.toml
           ./scripts/make-installer.ps1 -SkipBuild
 
-      # Unix: portable bundle (editor + CLI + MCP + engine/ next to the app).
+      # Windows: also a portable bundle (app + CLI + MCP + engine next to the app),
+      # so every OS ships a mdall-lite_<label>.zip that matches the README.
+      - name: Stage bundle (Windows)
+        if: matrix.os == 'windows'
+        shell: bash
+        run: |
+          full="mdall-lite_${{ matrix.label }}"
+          mkdir -p "$full"
+          cp "target/release/mdall.exe"         "$full/mdall-lite.exe"
+          cp "target/release/mdall-convert.exe" "$full/"
+          cp "target/release/mdall-mcp.exe"     "$full/"
+          if [ -d chromium ]; then cp -r chromium "$full/engine"; fi
+
+      # Unix: portable bundle (app + CLI + MCP + engine/ next to the app).
       - name: Stage bundle (Unix)
         if: matrix.os != 'windows'
         shell: bash
         run: |
-          full="mdall-${{ matrix.label }}"
+          full="mdall-lite_${{ matrix.label }}"
           mkdir -p "$full"
-          cp "target/release/mdall" "target/release/mdall-convert" "target/release/mdall-mcp" "$full/"
+          cp "target/release/mdall" "$full/mdall-lite"
+          cp "target/release/mdall-convert" "target/release/mdall-mcp" "$full/"
           if [ -d chromium ]; then cp -r chromium "$full/engine"; fi
 
       # Standalone MCP server (all OSes): the headless binary on its own.
@@ -109,47 +127,49 @@ jobs:
         shell: bash
         run: |
           ext=""; [ "${{ matrix.os }}" = "windows" ] && ext=".exe"
-          mcp="mdall-mcp-${{ matrix.label }}"
+          mcp="mdall-lite_mcp-${{ matrix.label }}"
           mkdir -p "$mcp"
           cp "target/release/mdall-mcp$ext" "$mcp/"
 
       - uses: actions/upload-artifact@v4
         if: matrix.os == 'windows'
         with:
-          name: mdall-${{ matrix.label }}-installer
+          name: mdall-lite_win-x64-installer
           path: dist/*-installer.exe
       - uses: actions/upload-artifact@v4
-        if: matrix.os != 'windows'
         with:
-          name: mdall-${{ matrix.label }}
-          path: mdall-${{ matrix.label }}/
+          name: mdall-lite_${{ matrix.label }}
+          path: mdall-lite_${{ matrix.label }}/
       - uses: actions/upload-artifact@v4
         with:
-          name: mdall-mcp-${{ matrix.label }}
-          path: mdall-mcp-${{ matrix.label }}/
+          name: mdall-lite_mcp-${{ matrix.label }}
+          path: mdall-lite_mcp-${{ matrix.label }}/
 
-      - name: Package MCP zip (Windows)
+      - name: Package zips (Windows)
         if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows'
         shell: pwsh
-        run: Compress-Archive -Path "mdall-mcp-${{ matrix.label }}/*" -DestinationPath "mdall-mcp-${{ matrix.label }}.zip"
+        run: |
+          Compress-Archive -Path "mdall-lite_${{ matrix.label }}/*"     -DestinationPath "mdall-lite_${{ matrix.label }}.zip"
+          Compress-Archive -Path "mdall-lite_mcp-${{ matrix.label }}/*" -DestinationPath "mdall-lite_mcp-${{ matrix.label }}.zip"
       - name: Package zips (Unix)
         if: startsWith(github.ref, 'refs/tags/') && matrix.os != 'windows'
         shell: bash
         run: |
-          (cd "mdall-${{ matrix.label }}" && zip -r "../mdall-${{ matrix.label }}.zip" .)
-          (cd "mdall-mcp-${{ matrix.label }}" && zip -r "../mdall-mcp-${{ matrix.label }}.zip" .)
+          (cd "mdall-lite_${{ matrix.label }}"     && zip -r "../mdall-lite_${{ matrix.label }}.zip" .)
+          (cd "mdall-lite_mcp-${{ matrix.label }}" && zip -r "../mdall-lite_mcp-${{ matrix.label }}.zip" .)
 
-      - name: Attach to release (Windows installer)
+      - name: Attach to release (Windows)
         if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows'
         uses: softprops/action-gh-release@v2
         with:
           files: |
             dist/*-installer.exe
-            mdall-mcp-${{ matrix.label }}.zip
-      - name: Attach to release (Unix bundle)
+            mdall-lite_${{ matrix.label }}.zip
+            mdall-lite_mcp-${{ matrix.label }}.zip
+      - name: Attach to release (Unix)
         if: startsWith(github.ref, 'refs/tags/') && matrix.os != 'windows'
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            mdall-${{ matrix.label }}.zip
-            mdall-mcp-${{ matrix.label }}.zip
+            mdall-lite_${{ matrix.label }}.zip
+            mdall-lite_mcp-${{ matrix.label }}.zip

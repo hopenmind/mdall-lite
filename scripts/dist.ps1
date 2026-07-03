@@ -5,17 +5,17 @@
 
 .DESCRIPTION
     1. Runs `cargo build --release`
-    2. Creates dist/mdall/ with the exe + the engine/ folder
+    2. Creates dist/mdall-lite/ with the exe + the engine/ folder
     3. Optionally zips the result for distribution
 
 .PARAMETER SkipBuild
     Skip cargo build (use existing target/release/mdall.exe).
 
 .PARAMETER Zip
-    Also produce dist/mdall-<version>.zip.
+    Also produce dist/mdall-lite_win-x64.zip.
 
 .PARAMETER OutputDir
-    Override output directory (default: <project-root>/dist/mdall/).
+    Override output directory (default: <project-root>/dist/mdall-lite/).
 #>
 param(
     [switch]$SkipBuild,
@@ -60,11 +60,11 @@ $ExePath      = Join-Path $ProjectRoot "target\release\mdall.exe"
 $CargoToml    = Get-Content (Join-Path $ProjectRoot "Cargo.toml") -Raw
 $Version      = if ($CargoToml -match 'version\s*=\s*"([^"]+)"') { $Matches[1] } else { "unknown" }
 
-$DistRoot     = if ($OutputDir) { $OutputDir } else { Join-Path $ProjectRoot "dist\mdall" }
+$DistRoot     = if ($OutputDir) { $OutputDir } else { Join-Path $ProjectRoot "dist\mdall-lite" }
 $DistChromium = Join-Path $DistRoot "chromium"
 
 Write-Host ""
-Write-Host "  MD -> ALL — Distribution Packager v$Version" -ForegroundColor Cyan
+Write-Host "  MD -> ALL lite - Distribution Packager v$Version" -ForegroundColor Cyan
 Write-Host "  Output: $DistRoot"
 Write-Host ""
 
@@ -105,7 +105,7 @@ if (Test-Path $DistRoot) { Remove-Item -Recurse -Force $DistRoot }
 New-Item -ItemType Directory -Path $DistRoot -Force | Out-Null
 
 # Main executable
-Copy-Item $ExePath $DistRoot
+Copy-Item $ExePath (Join-Path $DistRoot "mdall-lite.exe")
 
 # Rendering engine (portable folder — full copy, ~180 MB)
 Write-Host "  Copying the engine (~180 MB, please wait)..."
@@ -120,17 +120,17 @@ Get-DefaultDictionary (Join-Path $DistRoot "dictionaries")
 # Optional: README / license stub
 $ReadmePath = Join-Path $DistRoot "README.txt"
 @"
-MD -> ALL v$Version
-===================
+MD -> ALL lite v$Version
+========================
 
-Markdown editor with KaTeX math rendering and high-quality PDF export.
+Markdown/LaTeX converter with KaTeX math rendering and high-quality PDF export.
 
 Included:
-  mdall.exe     — main application
-  engine/       — bundled rendering engine (headless, PDF only)
+  mdall-lite.exe - main application
+  engine/        - bundled rendering engine (headless, PDF only)
 
 Usage:
-  Double-click mdall.exe to launch.
+  Double-click mdall-lite.exe to launch.
 
 PDF export quality (automatic cascade):
   1. Bundled rendering engine (best quality, pixel-perfect KaTeX)
@@ -150,7 +150,7 @@ Write-Host "  Location: $DistRoot"
 
 # ── Zip (optional) ────────────────────────────────────────────────────────────
 if ($Zip) {
-    $ZipPath = Join-Path (Split-Path $DistRoot -Parent) "mdall-$Version-windows-x64.zip"
+    $ZipPath = Join-Path (Split-Path $DistRoot -Parent) "mdall-lite_win-x64.zip"
     Write-Host "  Creating ZIP: $ZipPath ..." -ForegroundColor Yellow
     if (Test-Path $ZipPath) { Remove-Item $ZipPath -Force }
     Add-Type -AssemblyName System.IO.Compression.FileSystem

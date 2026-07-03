@@ -7,9 +7,9 @@
     1. Builds mdall.exe (release)
     2. Builds the installer stub (release)
     3. Strips chromium/ to headless-PDF-only files
-    4. Zips the payload (mdall.exe + stripped chromium/)
+    4. Zips the payload (mdall-lite.exe + stripped chromium/)
     5. Appends the ZIP to the stub exe with an 8-byte magic trailer
-    -> Output: dist/mdall-<version>-<arch>-installer.exe
+    -> Output: dist/mdall-lite_win-<arch>-installer.exe
 
 .PARAMETER SkipBuild
     Skip cargo build steps (use existing binaries).
@@ -76,10 +76,10 @@ $ArchLabel = switch -Wildcard ($Arch) {
 $TargetSubdir = if ($Arch -eq "x86_64-pc-windows-msvc") { "release" } else { "$Arch\release" }
 $AppExe       = Join-Path $ProjectRoot "target\$TargetSubdir\mdall.exe"
 $StubExe      = Join-Path $ProjectRoot "installer\target\$TargetSubdir\installer.exe"
-$OutputExe    = Join-Path $DistDir "mdall-$Version-$ArchLabel-installer.exe"
+$OutputExe    = Join-Path $DistDir "mdall-lite_win-$ArchLabel-installer.exe"
 
 Write-Host ""
-Write-Host "  MD -> ALL Installer Builder v$Version ($ArchLabel / $Arch)" -ForegroundColor Cyan
+Write-Host "  MD -> ALL lite Installer Builder v$Version ($ArchLabel / $Arch)" -ForegroundColor Cyan
 Write-Host "  Project root : $ProjectRoot"
 Write-Host "  Output       : $OutputExe"
 Write-Host ""
@@ -177,13 +177,13 @@ New-Item -ItemType Directory -Force $TmpDir | Out-Null
 $ZipPath = Join-Path $TmpDir "payload.zip"
 if (Test-Path $ZipPath) { Remove-Item $ZipPath -Force }
 
-# Stage dir: mdall.exe + engine/ (the installer extracts engine/ to a private
+# Stage dir: mdall-lite.exe + engine/ (the installer extracts engine/ to a private
 # per-user folder, so it is never placed next to the application).
 $StageDir = Join-Path $TmpDir "stage"
 if (Test-Path $StageDir) { Remove-Item -Recurse -Force $StageDir }
 New-Item -ItemType Directory -Force $StageDir | Out-Null
 
-Copy-Item $AppExe $StageDir
+Copy-Item $AppExe (Join-Path $StageDir "mdall-lite.exe")
 Copy-Item -Recurse $StrippedDir (Join-Path $StageDir "engine")
 
 # Default dictionary + license (spell check works out of the box).

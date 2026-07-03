@@ -3,8 +3,8 @@ fn main() {
     {
         let mut res = winresource::WindowsResource::new();
         res.set_icon("assets/favicon.ico");
-        res.set("ProductName", "MD -> ALL");
-        res.set("FileDescription", "Markdown Editor with KaTeX and PDF Export");
+        res.set("ProductName", "MD -> ALL lite");
+        res.set("FileDescription", "MD -> ALL lite - Markdown/LaTeX converter with equation gallery");
         res.set("ProductVersion", "3.0.3");
         if let Err(e) = res.compile() {
             eprintln!("winresource warning: {}", e);

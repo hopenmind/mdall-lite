@@ -1,10 +1,10 @@
-// MD -> ALL Self-Extracting Installer Stub
+// MD -> ALL lite Self-Extracting Installer Stub
 //
 // Trailer format appended by make-installer.ps1:
 //   [stub_exe_bytes][zip_payload_bytes][b"MD2ALLST" 8 bytes][zip_size u64 LE 8 bytes]
 //
-// On first run  : extracts payload ZIP alongside self, then launches mdall.exe
-// On re-run     : mdall.exe already present → just launches it
+// On first run  : extracts payload ZIP alongside self, then launches mdall-lite.exe
+// On re-run     : mdall-lite.exe already present -> just launches it
 
 #![windows_subsystem = "windows"]
 
@@ -25,7 +25,7 @@ fn main() {
         .unwrap_or_else(|| Path::new("."))
         .to_path_buf();
 
-    let app_exe = install_dir.join("mdall.exe");
+    let app_exe = install_dir.join("mdall-lite.exe");
 
     if !app_exe.exists() {
         extract_payload(&exe_path, &install_dir);
@@ -120,18 +120,18 @@ fn extract_payload(exe_path: &Path, install_dir: &Path) {
 fn engine_app_dir() -> Option<PathBuf> {
     #[cfg(target_os = "windows")]
     {
-        std::env::var_os("LOCALAPPDATA").map(|p| PathBuf::from(p).join("MD-ALL").join("engine"))
+        std::env::var_os("LOCALAPPDATA").map(|p| PathBuf::from(p).join("MD-ALL-lite").join("engine"))
     }
     #[cfg(target_os = "macos")]
     {
-        std::env::var_os("HOME").map(|p| PathBuf::from(p).join("Library/Application Support/MD-ALL/engine"))
+        std::env::var_os("HOME").map(|p| PathBuf::from(p).join("Library/Application Support/MD-ALL-lite/engine"))
     }
     #[cfg(all(unix, not(target_os = "macos")))]
     {
         std::env::var_os("XDG_DATA_HOME")
             .map(PathBuf::from)
             .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".local/share")))
-            .map(|p| p.join("md-all").join("engine"))
+            .map(|p| p.join("md-all-lite").join("engine"))
     }
 }
 
@@ -173,7 +173,7 @@ fn fatal(msg: &str) -> ! {
     // On Windows GUI subsystem, show a message box
     #[cfg(target_os = "windows")]
     unsafe {
-        let title: Vec<u16> = "MD -> ALL Installer\0".encode_utf16().collect();
+        let title: Vec<u16> = "MD -> ALL lite Installer\0".encode_utf16().collect();
         let mut text: String = msg.to_string();
         text.push('\0');
         let text_w: Vec<u16> = text.encode_utf16().collect();

@@ -34,21 +34,23 @@
 
 ## Download
 
-Self-contained builds (binaries plus a bundled PDF engine, ready to run):
+Self-contained builds (app + CLI + MCP + a bundled PDF engine, ready to run):
 
 | Platform | Download |
 |---|---|
-| Windows x64 | [mdall-win-x64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-win-x64.zip) |
-| Linux x64 | [mdall-linux-x64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-linux-x64.zip) |
-| macOS (Apple Silicon) | [mdall-macos-arm64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-macos-arm64.zip) |
+| Windows x64 | [mdall-lite_win-x64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-lite_win-x64.zip) |
+| Linux x64 | [mdall-lite_linux-x64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-lite_linux-x64.zip) |
+| macOS (Apple Silicon) | [mdall-lite_macos-arm64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-lite_macos-arm64.zip) |
+
+On Windows you can also grab the one-file installer [mdall-lite_win-x64-installer.exe](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-lite_win-x64-installer.exe): it unpacks the app and tucks the PDF engine into a private per-user folder, so nothing clutters your install directory.
 
 Just the MCP server (headless converter, no GUI, lighter download):
 
 | Platform | Download |
 |---|---|
-| Windows x64 | [mdall-mcp-win-x64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-mcp-win-x64.zip) |
-| Linux x64 | [mdall-mcp-linux-x64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-mcp-linux-x64.zip) |
-| macOS (Apple Silicon) | [mdall-mcp-macos-arm64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-mcp-macos-arm64.zip) |
+| Windows x64 | [mdall-lite_mcp-win-x64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-lite_mcp-win-x64.zip) |
+| Linux x64 | [mdall-lite_mcp-linux-x64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-lite_mcp-linux-x64.zip) |
+| macOS (Apple Silicon) | [mdall-lite_mcp-macos-arm64.zip](https://github.com/hopenmind/mdall-lite/releases/latest/download/mdall-lite_mcp-macos-arm64.zip) |
 
 All versions and changelogs: [github.com/hopenmind/mdall-lite/releases](https://github.com/hopenmind/mdall-lite/releases)
 

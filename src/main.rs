@@ -143,7 +143,7 @@ fn main() -> eframe::Result<()> {
     };
 
     eframe::run_native(
-        "MD -> ALL",
+        "MD -> ALL lite",
         options,
         Box::new(|cc| {
             cc.egui_ctx.set_visuals(heimdall_light_visuals());
