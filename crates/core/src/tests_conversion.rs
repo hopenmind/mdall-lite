@@ -446,6 +446,26 @@ fn extract_equations_edge_cases() {
     );
 }
 
+#[test]
+fn txt_export_renders_display_math_as_unicode() {
+    // latex_to_unicode (via sub_eq_unicode) is a documented never-remove item: the
+    // TXT export turns $$...$$ display blocks into a unicode approximation, not raw
+    // LaTeX. A silent switch to raw passthrough would ship "\alpha" to a .txt reader.
+    let md = "# T\n\n$$\\alpha + \\beta$$\n";
+    let out = tmp("txt_unicode", "txt");
+    export_formats::export_txt(md, &out).expect("export_txt failed");
+    let txt = fs::read_to_string(&out).expect("read txt");
+    assert!(
+        txt.contains('\u{03b1}'),
+        "TXT export must render $$\\alpha$$ as unicode alpha; got:\n{txt}"
+    );
+    assert!(
+        !txt.contains("\\alpha"),
+        "TXT export must not leave raw LaTeX \\alpha; got:\n{txt}"
+    );
+    cleanup(&out);
+}
+
 // ── Edge cases: conversions must NEVER panic on hostile input ──────────────────
 
 fn run_all_text_exports(md: &str, tag: &str) {
