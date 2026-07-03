@@ -9,7 +9,7 @@
     3. Optionally zips the result for distribution
 
 .PARAMETER SkipBuild
-    Skip cargo build (use existing target/release/mdall.exe).
+    Skip cargo build (use existing target/release/mdall-lite.exe).
 
 .PARAMETER Zip
     Also produce dist/mdall-lite_win-x64.zip.
@@ -54,7 +54,7 @@ function Get-DefaultDictionary {
 
 $ProjectRoot  = Split-Path $PSScriptRoot -Parent
 $ChromiumDir  = Join-Path $ProjectRoot "chromium"
-$ExePath      = Join-Path $ProjectRoot "target\release\mdall.exe"
+$ExePath      = Join-Path $ProjectRoot "target\release\mdall-lite.exe"
 
 # Read version from Cargo.toml
 $CargoToml    = Get-Content (Join-Path $ProjectRoot "Cargo.toml") -Raw

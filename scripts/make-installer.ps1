@@ -4,7 +4,7 @@
     Builds the self-extracting MD -> ALL installer.
 
 .DESCRIPTION
-    1. Builds mdall.exe (release)
+    1. Builds mdall-lite.exe (release)
     2. Builds the installer stub (release)
     3. Strips chromium/ to headless-PDF-only files
     4. Zips the payload (mdall-lite.exe + stripped chromium/)
@@ -74,7 +74,7 @@ $ArchLabel = switch -Wildcard ($Arch) {
 
 # cargo-zigbuild puts output under target/<triple>/release/ when a target is specified
 $TargetSubdir = if ($Arch -eq "x86_64-pc-windows-msvc") { "release" } else { "$Arch\release" }
-$AppExe       = Join-Path $ProjectRoot "target\$TargetSubdir\mdall.exe"
+$AppExe       = Join-Path $ProjectRoot "target\$TargetSubdir\mdall-lite.exe"
 $StubExe      = Join-Path $ProjectRoot "installer\target\$TargetSubdir\installer.exe"
 $OutputExe    = Join-Path $DistDir "mdall-lite_win-$ArchLabel-installer.exe"
 

@@ -3224,38 +3224,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mdall"
-version = "3.0.3"
-dependencies = [
- "chromiumoxide",
- "chrono",
- "comemo",
- "eframe",
- "egui_extras",
- "epub-builder",
- "futures-util",
- "image 0.25.10",
- "katex",
- "lopdf 0.34.0",
- "mdall-core",
- "open",
- "pulldown-cmark",
- "rckive-genpdf",
- "rfd",
- "serde",
- "serde_json",
- "tokio",
- "typst",
- "typst-assets",
- "typst-pdf",
- "typst-render",
- "typst-svg",
- "ureq",
- "winresource",
- "zip 2.4.2",
-]
-
-[[package]]
 name = "mdall-convert"
 version = "0.1.0"
 dependencies = [
@@ -3287,6 +3255,38 @@ dependencies = [
  "typst-pdf",
  "typst-render",
  "typst-svg",
+ "zip 2.4.2",
+]
+
+[[package]]
+name = "mdall-lite"
+version = "3.0.3"
+dependencies = [
+ "chromiumoxide",
+ "chrono",
+ "comemo",
+ "eframe",
+ "egui_extras",
+ "epub-builder",
+ "futures-util",
+ "image 0.25.10",
+ "katex",
+ "lopdf 0.34.0",
+ "mdall-core",
+ "open",
+ "pulldown-cmark",
+ "rckive-genpdf",
+ "rfd",
+ "serde",
+ "serde_json",
+ "tokio",
+ "typst",
+ "typst-assets",
+ "typst-pdf",
+ "typst-render",
+ "typst-svg",
+ "ureq",
+ "winresource",
  "zip 2.4.2",
 ]
 

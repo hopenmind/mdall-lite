@@ -228,8 +228,8 @@ Every target is built natively by CI (`.github/workflows/release.yml`) on GitHub
 ## Build from source
 
 ```bash
-# Editor + converter + MCP
-cargo build --release --bin mdall
+# The lite app (converter + equation gallery)
+cargo build --release --bin mdall-lite
 
 # Just the MCP server (headless)
 cargo build --release -p mdall-mcp

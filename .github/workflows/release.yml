@@ -106,7 +106,7 @@ jobs:
         run: |
           full="mdall-lite_${{ matrix.label }}"
           mkdir -p "$full"
-          cp "target/release/mdall.exe"         "$full/mdall-lite.exe"
+          cp "target/release/mdall-lite.exe"    "$full/"
           cp "target/release/mdall-convert.exe" "$full/"
           cp "target/release/mdall-mcp.exe"     "$full/"
           if [ -d chromium ]; then cp -r chromium "$full/engine"; fi
@@ -118,8 +118,7 @@ jobs:
         run: |
           full="mdall-lite_${{ matrix.label }}"
           mkdir -p "$full"
-          cp "target/release/mdall" "$full/mdall-lite"
-          cp "target/release/mdall-convert" "target/release/mdall-mcp" "$full/"
+          cp "target/release/mdall-lite" "target/release/mdall-convert" "target/release/mdall-mcp" "$full/"
           if [ -d chromium ]; then cp -r chromium "$full/engine"; fi
 
       # Standalone MCP server (all OSes): the headless binary on its own.

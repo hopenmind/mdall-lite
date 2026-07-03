@@ -12,7 +12,7 @@
     Checks, in order:
       1. cargo check  (whole workspace compiles)
       2. cargo test -p mdall-core         (conversion + safety suite)
-      3. cargo test --bin mdall           (editor / WYSIWYG suite - CI skips this)
+      3. cargo test --bin mdall-lite      (editor / WYSIWYG suite - CI skips this)
       4. cargo build --release --workspace --bins   (the shipping binaries)
       5. Smoke conversion: a document with inline + display LaTeX -> HTML and DOCX,
          both non-empty, and the DOCX still carries the md-to-all-source.xml entry
@@ -61,7 +61,7 @@ Write-Host "root: $root`n" -ForegroundColor DarkGray
 # 1-3: compile + the two test suites.
 $checkOk = Invoke-Cargo 'cargo check (workspace)' @('check', '--workspace', '--quiet')
 $coreOk  = Invoke-Cargo 'cargo test -p mdall-core' @('test', '-p', 'mdall-core', '--quiet')
-$binOk   = Invoke-Cargo 'cargo test --bin mdall'   @('test', '--bin', 'mdall', '--quiet')
+$binOk   = Invoke-Cargo 'cargo test --bin mdall-lite' @('test', '--bin', 'mdall-lite', '--quiet')
 
 # 4-5: release build + end-to-end smoke conversion (incl. DOCX reversibility).
 $buildOk = $true

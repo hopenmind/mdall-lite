@@ -77,7 +77,7 @@ try {
             $crossFailed += $t
             continue
         }
-        $bin = Join-Path $root "target/$t/release/mdall.exe"
+        $bin = Join-Path $root "target/$t/release/mdall-lite.exe"
         if (Test-Path $bin) {
             $mb = [math]::Round((Get-Item $bin).Length / 1MB, 1)
             Write-Host "    OK  $bin  ($mb MB)" -ForegroundColor Green
