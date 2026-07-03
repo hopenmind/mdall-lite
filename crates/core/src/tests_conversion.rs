@@ -466,6 +466,25 @@ fn txt_export_renders_display_math_as_unicode() {
     cleanup(&out);
 }
 
+#[test]
+fn advertised_export_formats_are_all_dispatched() {
+    // list_formats / the MCP advertise supported_export_exts(); each must actually
+    // be handled by export_md's dispatch, not fall through to "not supported".
+    // Some formats may Err for runtime reasons; only an "is not supported" error
+    // means the advertised list lies about a format it cannot produce.
+    let md = "# T\n\ntext and\n\n$$a+b$$\n";
+    for ext in crate::convert::supported_export_exts() {
+        let out = tmp("parity", ext);
+        if let Err(e) = crate::convert::export_md(md, &out, &meta(), None) {
+            assert!(
+                !e.contains("is not supported"),
+                "advertised export .{ext} is not dispatched by export_md: {e}"
+            );
+        }
+        cleanup(&out);
+    }
+}
+
 // ── Edge cases: conversions must NEVER panic on hostile input ──────────────────
 
 fn run_all_text_exports(md: &str, tag: &str) {
