@@ -264,6 +264,55 @@ fn docx_embeds_source_entry() {
     cleanup(&out);
 }
 
+#[test]
+fn docx_media_carry_recoverable_latex() {
+    // Reversibility layers 2 & 3 through the REAL export pipeline: the equation
+    // images embedded in the DOCX must carry the original LaTeX (PNG tEXt chunk +
+    // SVG <metadata>), so recovery still works after Word strips the primary
+    // md-to-all-source.xml entry. This guards the "hidden data survives export"
+    // contract end-to-end - the existing round-trip tests only exercise layer 1.
+    use std::io::Read;
+    let md = "# Title\n\n$$E = mc^2$$\n";
+    let out = tmp("media_latex", "docx");
+    export_formats::export_docx(md, &out, &meta(), None).expect("export_docx failed");
+
+    let file = fs::File::open(&out).unwrap();
+    let mut zip = zip::ZipArchive::new(file).unwrap();
+    let mut png_latex: Option<String> = None;
+    let mut svg_latex: Option<String> = None;
+    for i in 0..zip.len() {
+        let mut e = zip.by_index(i).unwrap();
+        let name = e.name().to_string();
+        if !name.starts_with("word/media/") {
+            continue;
+        }
+        if name.ends_with(".png") {
+            let mut buf = Vec::new();
+            e.read_to_end(&mut buf).unwrap();
+            if let Some(l) = source_embed::extract_latex_from_png(&buf) {
+                png_latex = Some(l);
+            }
+        } else if name.ends_with(".svg") {
+            let mut s = String::new();
+            e.read_to_string(&mut s).unwrap();
+            if let Some(l) = source_embed::extract_latex_from_svg(&s) {
+                svg_latex = Some(l);
+            }
+        }
+    }
+
+    // Layer 2 (PNG tEXt) is the reliable secondary recovery layer - require it.
+    let png = png_latex
+        .expect("no PNG in word/media carried a recoverable LaTeX tEXt chunk (layer 2 broken)");
+    assert!(png.contains("mc^2"), "PNG tEXt LaTeX '{png}' does not carry the equation");
+    // Layer 3 (SVG metadata) is for older Word / LibreOffice; assert it when the
+    // exporter embedded an SVG, but do not fail the test on its absence.
+    if let Some(svg) = svg_latex {
+        assert!(svg.contains("mc^2"), "SVG metadata LaTeX '{svg}' does not carry the equation");
+    }
+    cleanup(&out);
+}
+
 // ── Edge cases: conversions must NEVER panic on hostile input ──────────────────
 
 fn run_all_text_exports(md: &str, tag: &str) {
