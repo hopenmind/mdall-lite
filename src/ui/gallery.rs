@@ -14,6 +14,10 @@ use crate::{theme, MdApp};
 impl MdApp {
     pub(crate) fn show_gallery(&mut self, ui: &mut egui::Ui, _ctx: &egui::Context) {
         let dark = self.dark_mode;
+        let font_size = self.font_size;
+        // An Edit click is recorded here and applied AFTER the scroll area, so the
+        // render closure never needs a mutable borrow of self.
+        let mut open_req: Option<(usize, String)> = None;
 
         // Snapshot the display equations up front (index + LaTeX), so the render
         // borrow never conflicts with a later source mutation (equation editing).
@@ -74,8 +78,9 @@ impl MdApp {
                                     ui.with_layout(
                                         egui::Layout::right_to_left(egui::Align::Center),
                                         |ui| {
-                                            // Wired to the equation editor in L2.
-                                            let _ = ui.button("Edit");
+                                            if ui.button("Edit").clicked() {
+                                                open_req = Some((*idx, latex.clone()));
+                                            }
                                         },
                                     );
                                 });
@@ -85,7 +90,7 @@ impl MdApp {
                                 ui.add_space(6.0);
                                 let job = crate::equation_layout::latex_to_layout_job(
                                     latex,
-                                    self.font_size * 1.15,
+                                    font_size * 1.15,
                                     card_w - 24.0,
                                     theme::text_strong(dark),
                                 );
@@ -103,5 +108,22 @@ impl MdApp {
                     ui.add_space(10.0);
                 }
             });
+
+        // Open the equation editor overlay for the clicked equation. Its Apply
+        // (apply_equation_edit) locates the block by `index` and rewrites its
+        // $$...$$ in the source, then a re-parse refreshes this gallery.
+        if let Some((index, latex)) = open_req {
+            self.eq_editor = crate::ui::state::EquationEditor {
+                visible: true,
+                latex,
+                index,
+                is_inline: false,
+                inline_block_range: 0..0,
+                inline_delim_open: String::new(),
+                inline_delim_close: String::new(),
+                inline_orig_latex: String::new(),
+                inline_run_idx: 0,
+            };
+        }
     }
 }
