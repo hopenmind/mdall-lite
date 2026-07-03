@@ -501,15 +501,10 @@ impl MdApp {
                     self.compute_search_matches();
                 }
 
-                // ── View modes ────────────────────────────────────────────
-                if i.key_pressed(egui::Key::Num1) { self.view_mode = ViewMode::Source; }
-                if i.key_pressed(egui::Key::Num2) { self.view_mode = ViewMode::Split; }
-                if i.key_pressed(egui::Key::Num3) {
-                    self.view_mode = ViewMode::Editor;
-                    self.segments_dirty = true;
-                }
-                // MD -> ALL lite: the equation gallery.
-                if i.key_pressed(egui::Key::Num4) {
+                // ── View modes (lite: only the converter hub + the equation
+                //    gallery; the full editor views are not exposed) ─────────
+                if i.key_pressed(egui::Key::Num1) { self.view_mode = ViewMode::Converter; }
+                if i.key_pressed(egui::Key::Num2) {
                     self.view_mode = ViewMode::Gallery;
                     self.segments_dirty = true;
                 }
