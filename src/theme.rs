@@ -1,25 +1,25 @@
-//! Heimdall Design System (MD -> ALL lite) - purple + gold brand theme (light mode).
-//! Derived from the yellow/purple logo palette: violet ink on white paper on a
-//! golden-yellow desk. Single accent (#A020C0 magenta-violet).
+//! Heimdall Design System (MD -> ALL lite) - violet + magenta + silver theme (light mode).
+//! Derived from the lite logo: violet ink + magenta accent + silver (the chrome "A")
+//! on a light lavender desk. Gold and cream belong to the classic editor, not lite.
 //! Dark theme: derive by inverting HSL lightness while preserving hue/saturation.
 
 use eframe::egui::{self, Color32, Stroke, Rounding};
 
 // ── Color tokens ─────────────────────────────────────────────────────────
-pub const BG:           Color32 = Color32::from_rgb(251, 246, 233); // #FBF6E9 warm cream
+pub const BG:           Color32 = Color32::from_rgb(244, 239, 251); // #F4EFFB lavender-white
 pub const SURFACE:      Color32 = Color32::WHITE;
-pub const SURFACE_SOFT: Color32 = Color32::from_rgb(246, 239, 221); // #F6EFDD
-pub const SURFACE_ALT:  Color32 = Color32::from_rgb(239, 228, 198); // #EFE4C6
+pub const SURFACE_SOFT: Color32 = Color32::from_rgb(236, 227, 247); // #ECE3F7 soft lavender
+pub const SURFACE_ALT:  Color32 = Color32::from_rgb(225, 212, 243); // #E1D4F3
 pub const TEXT:         Color32 = Color32::from_rgb(36, 23, 52);    // #241734 deep violet ink
 pub const TEXT_2:       Color32 = Color32::from_rgb(78, 61, 102);   // #4E3D66
 pub const TEXT_MUTED:   Color32 = Color32::from_rgb(139, 123, 166); // #8B7BA6
-pub const ACCENT:       Color32 = Color32::from_rgb(160, 32, 192);  // #A020C0 magenta-violet
+pub const ACCENT:       Color32 = Color32::from_rgb(160, 32, 192);  // #A020C0 logo magenta
 pub const ACCENT_HOVER: Color32 = Color32::from_rgb(123, 24, 156);  // #7B189C
 pub const ACCENT_PALE:  Color32 = Color32::from_rgb(236, 214, 245); // #ECD6F5 pale lavender
-pub const BORDER:       Color32 = Color32::from_rgb(229, 216, 191); // #E5D8BF warm sand
+pub const BORDER:       Color32 = Color32::from_rgb(231, 220, 246); // #E7DCF6 lavender border
 pub const SELECTION:    Color32 = Color32::from_rgb(231, 204, 247); // #E7CCF7 pale purple
-pub const DESKTOP:      Color32 = Color32::from_rgb(239, 192, 30);  // #EFC01E brand gold-yellow
-pub const EQ_BG:        Color32 = Color32::from_rgb(247, 240, 222); // equation bg cream
+pub const DESKTOP:      Color32 = Color32::from_rgb(212, 193, 236); // #D4C1EC lavender-violet desk
+pub const EQ_BG:        Color32 = Color32::from_rgb(243, 236, 251); // #F3ECFB lavender
 pub const SUCCESS:      Color32 = Color32::from_rgb(45, 122, 69);   // #2D7A45
 pub const ERROR:        Color32 = Color32::from_rgb(181, 61, 42);   // #B53D2A
 
@@ -75,7 +75,7 @@ pub fn light_visuals() -> egui::Visuals {
     // Window chrome
     v.window_shadow = egui::epaint::Shadow {
         offset: egui::vec2(0.0, 3.0), blur: 10.0, spread: 0.0,
-        color: Color32::from_rgba_unmultiplied(42, 31, 15, 20),
+        color: Color32::from_rgba_unmultiplied(42, 23, 88, 28),
     };
     v.window_stroke  = Stroke::new(1.0, BORDER);
     v.window_rounding = Rounding::same(8.0);
@@ -87,8 +87,8 @@ pub fn light_visuals() -> egui::Visuals {
     v.widgets.noninteractive.rounding  = Rounding::same(5.0);
 
     // Widgets - Inactive - warm grey (replaces egui default cold grey)
-    v.widgets.inactive.bg_fill      = Color32::from_rgb(228, 222, 210); // warm grey
-    v.widgets.inactive.weak_bg_fill = Color32::from_rgb(235, 229, 218); // lighter warm grey
+    v.widgets.inactive.bg_fill      = Color32::from_rgb(228, 220, 243); // lavender grey
+    v.widgets.inactive.weak_bg_fill = Color32::from_rgb(237, 231, 250); // lighter lavender grey
     v.widgets.inactive.bg_stroke = Stroke::new(1.0, BORDER);
     v.widgets.inactive.fg_stroke = Stroke::new(1.0, TEXT_2);
     v.widgets.inactive.rounding  = Rounding::same(5.0);
@@ -144,7 +144,7 @@ pub fn surface_soft_c(dark: bool) -> Color32 {
 }
 /// Inactive button fill (warm grey).
 pub fn btn_fill(dark: bool) -> Color32 {
-    let light = Color32::from_rgb(230, 224, 212);
+    let light = Color32::from_rgb(230, 222, 244);
     if dark { invert_lightness(light) } else { light }
 }
 /// Primary text.
