@@ -798,10 +798,12 @@ impl MdApp {
             };
             egui::Button::new(egui::RichText::new(label).size(12.0).color(txt)).fill(bg)
         };
-        if ui.add_sized([44.0, 22.0], view_btn(&t("view.hub"), self.view_mode == ViewMode::Converter)).clicked() { self.view_mode = ViewMode::Converter; }
-        if ui.add_sized([54.0, 22.0], view_btn(&t("view.source"), self.view_mode == ViewMode::Source)).clicked() { self.view_mode = ViewMode::Source; }
-        if ui.add_sized([42.0, 22.0], view_btn(&t("view.split"), self.view_mode == ViewMode::Split)).clicked() { self.view_mode = ViewMode::Split; }
-        if ui.add_sized([54.0, 22.0], view_btn(&t("view.editor"), self.view_mode == ViewMode::Editor)).clicked() { self.view_mode = ViewMode::Editor; self.segments_dirty = true; }
+        // Lite is a converter + gallery: only the Hub and (when a document is
+        // loaded) the equation Gallery are reachable - no raw Source/Split/Editor.
+        if ui.add_sized([48.0, 22.0], view_btn(&t("view.hub"), self.view_mode == ViewMode::Converter)).clicked() { self.view_mode = ViewMode::Converter; }
+        if !self.source.is_empty() || self.current_file.is_some() {
+            if ui.add_sized([64.0, 22.0], view_btn(&t("view.gallery"), self.view_mode == ViewMode::Gallery)).clicked() { self.view_mode = ViewMode::Gallery; }
+        }
     }
 
     /// Top bar. On the converter home it stays hidden as a thin hint strip and

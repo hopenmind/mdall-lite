@@ -177,7 +177,7 @@ impl MdApp {
         let margin_w = (avail.x * 0.12).clamp(90.0, 200.0);
         {
             let area = ui.max_rect();
-            let rune_col = egui::Color32::from_rgb(122, 100, 74); // softly blended, ~2 shades up from #5C4A38
+            let rune_col = egui::Color32::from_rgb(91, 42, 166); // #5B2AA6 violet runes (pronounced on lavender)
             let left = egui::Rect::from_min_max(area.left_top(), egui::pos2(area.left() + margin_w, area.bottom()));
             let right = egui::Rect::from_min_max(egui::pos2(area.right() - margin_w, area.top()), area.right_bottom());
             paint_runic_stave(ui.painter(), left.shrink2(egui::vec2(8.0, 56.0)), rune_col, false);
@@ -252,7 +252,7 @@ impl MdApp {
                     // Gold tick corners - dashed border feel
                     {
                         let t = 14.0_f32;
-                        let c = egui::Color32::from_rgba_unmultiplied(201, 146, 10, 120);
+                        let c = egui::Color32::from_rgba_unmultiplied(160, 32, 192, 130);
                         let s = egui::Stroke::new(2.0, c);
                         let r = drop_rect;
                         ui.painter().line_segment([r.left_top(), r.left_top() + egui::vec2(t, 0.0)], s);
