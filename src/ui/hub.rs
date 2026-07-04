@@ -289,22 +289,6 @@ impl MdApp {
                         }
                     }
 
-                    // Quick path into a blank document in the Split editor.
-                    ui.add_space(12.0);
-                    ui.vertical_centered(|ui| {
-                        if ui.add(egui::Button::new(
-                            egui::RichText::new("Open the editor  (blank document, Split view)")
-                                .size(13.0).color(theme::TEXT))
-                            .fill(theme::ACCENT_PALE)
-                            .stroke(egui::Stroke::new(1.0, theme::ACCENT))
-                            .min_size(egui::vec2(300.0, 34.0)))
-                            .on_hover_text("Start a new empty document in the source + rendered Split view")
-                            .clicked()
-                        {
-                            self.open_blank_split_editor();
-                        }
-                    });
-
                     // ── File list + batch actions ────────────────────────────
                     if !self.conversion_hub.files.is_empty() {
                         ui.add_space(10.0);

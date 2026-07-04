@@ -563,7 +563,7 @@ impl MdApp {
                     self.current_file = None; // unsaved - prompt on next save
                     self.modified = true;
                     self.segments_dirty = true;
-                    self.view_mode = ViewMode::Editor;
+                    self.view_mode = ViewMode::Gallery;
                     // Surface any reviewer feedback (tracked changes + comments) the
                     // supervisor left in Word, so it can be read in-app.
                     self.review_items =
@@ -594,14 +594,6 @@ impl MdApp {
         self.modified = false;
         self.segments_dirty = true;
         self.status_msg = "New file".into();
-    }
-
-    /// Open a blank document directly in the Split editor (source + rendered view
-    /// side by side), the quickest path from the hub into editing.
-    pub(crate) fn open_blank_split_editor(&mut self) {
-        self.do_new();
-        self.view_mode = ViewMode::Split;
-        self.segments_dirty = true;
     }
 
     pub(crate) fn do_open(&mut self) {
@@ -643,9 +635,9 @@ impl MdApp {
                     self.modified = false;
                     self.segments_dirty = true;
                     self.status_msg = "Opened".into();
-                    // Switch to Editor so user sees the imported content
+                    // Switch to the equation gallery so the user reviews the imported content
                     if self.view_mode == ViewMode::Converter {
-                        self.view_mode = ViewMode::Editor;
+                        self.view_mode = ViewMode::Gallery;
                     }
                 }
                 Err(e) => self.status_msg = format!("Import error: {}", e),

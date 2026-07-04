@@ -184,7 +184,7 @@ fn main() -> eframe::Result<()> {
                         Ok(md) => {
                             app.source = md;
                             app.segments_dirty = true;
-                            app.view_mode = ViewMode::Editor;
+                            app.view_mode = ViewMode::Gallery;
                             // Surface reviewer feedback when opening a DOCX directly.
                             if p.extension().and_then(|e| e.to_str())
                                 .map(|e| e.eq_ignore_ascii_case("docx")).unwrap_or(false)
