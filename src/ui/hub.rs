@@ -93,24 +93,38 @@ impl MdApp {
 
         if !ui.is_rect_visible(rect) { return resp; }
 
-        let col      = fmt.color();
-        let hovered  = resp.hovered();
-        let clicked  = resp.is_pointer_button_down_on();
+        let col = fmt.color();
+        // VISIBLE click feedback: the tile lifts a touch on hover and dips +
+        // shrinks while held, so the eye registers that the press landed.
+        // `animate_bool_with_time` eases 0->1 and repaints itself while animating.
+        let hov = ui.ctx().animate_bool_with_time(resp.id.with("hov"), resp.hovered(), 0.12);
+        let prs = ui.ctx().animate_bool_with_time(resp.id.with("prs"), resp.is_pointer_button_down_on(), 0.06);
+        let dy   = -3.0 * hov + 4.0 * prs;                    // hover rises, press sinks
+        let draw = rect.translate(egui::vec2(0.0, dy)).shrink(2.0 * prs);
+
+        // Soft shadow that grows on hover, lifting the tile off the page.
+        if hov > 0.01 {
+            ui.painter().rect_filled(
+                draw.translate(egui::vec2(0.0, 5.0 * hov)).expand(1.0),
+                10.0,
+                egui::Color32::from_rgba_unmultiplied(col.r(), col.g(), col.b(), (24.0 * hov) as u8),
+            );
+        }
 
         // ── Button background ────────────────────────────────────────────────
-        let bg_alpha = if clicked { 35u8 } else if hovered { 22u8 } else { 10u8 };
+        let bg_alpha = (10.0 + 13.0 * hov + 16.0 * prs).min(46.0) as u8;
         let bg = egui::Color32::from_rgba_unmultiplied(col.r(), col.g(), col.b(), bg_alpha);
-        ui.painter().rect_filled(rect, 8.0, bg);
+        ui.painter().rect_filled(draw, 8.0, bg);
 
-        // Border - subtle at rest, more visible on hover
-        let bd_alpha = if hovered { 180u8 } else { 60u8 };
-        let bd_width = if hovered { 1.5 } else { 1.0 };
-        ui.painter().rect_stroke(rect, 8.0, egui::Stroke::new(bd_width,
+        // Border - subtle at rest, brighter on hover
+        let bd_alpha = (60.0 + 120.0 * hov) as u8;
+        let bd_width = 1.0 + 0.7 * hov;
+        ui.painter().rect_stroke(draw, 8.0, egui::Stroke::new(bd_width,
             egui::Color32::from_rgba_unmultiplied(col.r(), col.g(), col.b(), bd_alpha)));
 
         // ── Badge (format color bg, white text) ──────────────────────────────
-        let badge_x = rect.center().x - badge_s * 0.5;
-        let badge_y = rect.min.y + 7.0;
+        let badge_x = draw.center().x - badge_s * 0.5;
+        let badge_y = draw.min.y + 7.0;
         let badge_r = egui::Rect::from_min_size(
             egui::pos2(badge_x, badge_y), egui::vec2(badge_s, badge_s),
         );
@@ -136,17 +150,19 @@ impl MdApp {
         // ── Label below badge - DARK text on near-transparent bg = contrast ✓ ─
         let label_y = badge_y + badge_s + 3.5;
         ui.painter().text(
-            egui::pos2(rect.center().x, label_y),
+            egui::pos2(draw.center().x, label_y),
             egui::Align2::CENTER_TOP,
             fmt.label(),
             egui::FontId::new(10.0, egui::FontFamily::Proportional),
             theme::TEXT_2, // dark warm #6B5440 - not the format color!
         );
 
-        // Hover ring
-        if hovered {
-            ui.painter().rect_stroke(rect.expand(1.5), 9.0,
-                egui::Stroke::new(2.0, col));
+        // Hover ring (fades in) + pointing-hand cursor.
+        if hov > 0.01 {
+            ui.painter().rect_stroke(draw.expand(1.5), 9.0,
+                egui::Stroke::new(2.0 * hov, col));
+        }
+        if resp.hovered() {
             ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
         }
 
@@ -345,7 +361,7 @@ impl MdApp {
                             let btn_w = (ui.available_width() - 12.0) / 2.0;
                             if single {
                                 if ui.add_sized([btn_w, 36.0],
-                                    egui::Button::new(egui::RichText::new("Open in Editor").size(13.0).strong().color(theme::TEXT_2))
+                                    egui::Button::new(egui::RichText::new("Open Equation editor").size(13.0).strong().color(theme::TEXT_2))
                                         .fill(theme::SURFACE_SOFT)
                                         .stroke(egui::Stroke::new(1.5, theme::ACCENT))
                                 ).clicked() {
@@ -648,25 +664,28 @@ impl MdApp {
             ..Default::default()
         };
         let mut ok = 0usize;
+        let mut total_applied = 0usize; // artifacts cleaned across every file
         let mut last_name = String::new();
         for (i, path) in paths.iter().enumerate() {
-            let res: Result<std::path::PathBuf, String> = (|| {
+            let res: Result<(std::path::PathBuf, usize), String> = (|| {
                 let md = Self::import_to_md(path)?;
                 let outcome = purify::purify_str(&md, None, &opts);
+                let cleaned = outcome.report.applied.unwrap_or(0);
                 let stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
                 let dir = path.parent().unwrap_or_else(|| std::path::Path::new("."));
                 let out = dir.join(format!("{}_clean.md", stem));
                 std::fs::write(&out, outcome.text.as_bytes()).map_err(|e| e.to_string())?;
-                Ok(out)
+                Ok((out, cleaned))
             })();
             match res {
-                Ok(out) => {
+                Ok((out, cleaned)) => {
                     ok += 1;
+                    total_applied += cleaned;
                     last_name = out.file_name().unwrap_or_default().to_string_lossy().to_string();
                     if let Some(f) = self.conversion_hub.files.get_mut(i) {
                         f.status = FileStatus::Done;
                         f.output_path = Some(out);
-                        f.message = "Cleaned".into();
+                        f.message = format!("Cleaned - {} artifact(s) removed", cleaned);
                     }
                 }
                 Err(e) => {
@@ -681,12 +700,12 @@ impl MdApp {
         self.conversion_hub.is_error = ok < total;
         self.conversion_hub.status = if ok == total {
             if total == 1 {
-                format!("Cleaned -> {}", last_name)
+                format!("Cleaned {} artifact(s) -> {}", total_applied, last_name)
             } else {
-                format!("Cleaned {} files -> *_clean.md", ok)
+                format!("Cleaned {} artifact(s) across {} files -> *_clean.md", total_applied, ok)
             }
         } else {
-            format!("Cleaned {}/{}, {} failed", ok, total, total - ok)
+            format!("Cleaned {}/{} ({} artifacts), {} failed", ok, total, total_applied, total - ok)
         };
     }
 
