@@ -356,33 +356,22 @@ impl MdApp {
                                     egui::Label::new(egui::RichText::new("Open a file via its ⚙ to edit")
                                         .size(11.0).italics().color(theme::TEXT_MUTED)));
                             }
-                            ui.add_space(12.0);
-                            let convert_label = if single { "Convert..." } else { "Convert all..." };
-                            let picking = self.conversion_hub.pick_format;
-                            if ui.add_sized([btn_w, 36.0],
-                                egui::Button::new(egui::RichText::new(
-                                    if picking { format!("{}  ▲", convert_label) }
-                                    else { format!("{}  ▼", convert_label) }
-                                ).size(13.0).strong().color(egui::Color32::WHITE))
-                                .fill(if picking { theme::ACCENT_HOVER } else { theme::ACCENT })
-                            ).clicked() {
-                                self.conversion_hub.pick_format = !self.conversion_hub.pick_format;
-                            }
                         });
 
-                        // ── Format picker ────────────────────────────────────
-                        if self.conversion_hub.pick_format {
-                            ui.add_space(10.0);
-                            ui.horizontal(|ui| {
-                                let (r, _) = ui.allocate_exact_size(egui::vec2(3.0, 16.0), egui::Sense::hover());
-                                ui.painter().rect_filled(r, 1.0, theme::ACCENT);
-                                ui.add_space(6.0);
-                                ui.label(egui::RichText::new(
-                                    if single { "Choose output format" } else { "Choose output format for all" }
-                                ).size(12.5).strong().color(theme::TEXT_2));
-                            });
-                            ui.add_space(8.0);
-                            const COLS: usize = 4;
+                        // ── Convert: the format grid is ALWAYS visible; one click
+                        //    converts (single) or starts the batch (multi). No popup,
+                        //    no "Convert..." step - picking a format IS the action.
+                        ui.add_space(12.0);
+                        ui.horizontal(|ui| {
+                            let (r, _) = ui.allocate_exact_size(egui::vec2(3.0, 16.0), egui::Sense::hover());
+                            ui.painter().rect_filled(r, 1.0, theme::ACCENT);
+                            ui.add_space(6.0);
+                            ui.label(egui::RichText::new(if single { "Convert to" } else { "Convert all to" })
+                                .size(12.5).strong().color(theme::TEXT_2));
+                        });
+                        ui.add_space(8.0);
+                        {
+                            const COLS: usize = 5;
                             let avail_w = ui.available_width();
                             let btn_w = (avail_w - (COLS as f32 - 1.0) * 8.0) / COLS as f32;
                             let mut clicked_fmt: Option<OutputFormat> = None;
@@ -393,7 +382,6 @@ impl MdApp {
                                 }
                             });
                             if let Some(fmt) = clicked_fmt {
-                                self.conversion_hub.pick_format = false;
                                 if single { self.convert_single(0, fmt); }
                                 else { self.start_batch(fmt); }
                             }

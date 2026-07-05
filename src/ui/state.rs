@@ -63,8 +63,6 @@ pub struct ConversionHub {
     pub selected:     Option<usize>,
     /// Chosen output format for the batch (per-file `target` overrides it).
     pub batch_target: Option<OutputFormat>,
-    /// True while the format-picker grid is shown.
-    pub pick_format:  bool,
     /// Global status / error message.
     pub status:       String,
     pub is_error:     bool,
@@ -84,7 +82,6 @@ impl Default for ConversionHub {
             converted_md: None,
             selected:     None,
             batch_target: None,
-            pick_format:  false,
             status:       String::new(),
             is_error:     false,
             hovering:     false,
