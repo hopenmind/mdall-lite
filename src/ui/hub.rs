@@ -358,6 +358,23 @@ impl MdApp {
                             }
                         });
 
+                        // ── Clean / Sanitize (accessible: above the format grid) ──
+                        ui.add_space(10.0);
+                        {
+                            let clean_label = if single { "Clean / Sanitize" } else { "Clean / Sanitize all" };
+                            if ui.add_sized([ui.available_width(), 34.0],
+                                egui::Button::new(egui::RichText::new(
+                                    format!("{}   (strip LLM watermarks -> *_clean.md)", clean_label))
+                                    .size(12.5).color(theme::TEXT_2))
+                                    .fill(theme::SURFACE_SOFT)
+                                    .stroke(egui::Stroke::new(1.0, theme::BORDER)))
+                                .on_hover_text("Import to Markdown, remove LLM watermarks / encoding artifacts (math and code preserved), and write a cleaned .md next to each file.")
+                                .clicked()
+                            {
+                                self.clean_hub_files();
+                            }
+                        }
+
                         // ── Convert: the format grid is ALWAYS visible; one click
                         //    converts (single) or starts the batch (multi). No popup,
                         //    no "Convert..." step - picking a format IS the action.
@@ -384,23 +401,6 @@ impl MdApp {
                             if let Some(fmt) = clicked_fmt {
                                 if single { self.convert_single(0, fmt); }
                                 else { self.start_batch(fmt); }
-                            }
-                        }
-
-                        // ── Clean / Sanitize (strip LLM watermarks + encoding) ────
-                        ui.add_space(8.0);
-                        {
-                            let clean_label = if single { "Clean / Sanitize" } else { "Clean / Sanitize all" };
-                            if ui.add_sized([ui.available_width(), 32.0],
-                                egui::Button::new(egui::RichText::new(
-                                    format!("{}   (strip LLM watermarks -> *_clean.md)", clean_label))
-                                    .size(12.5).color(theme::TEXT_2))
-                                    .fill(theme::SURFACE_SOFT)
-                                    .stroke(egui::Stroke::new(1.0, theme::BORDER)))
-                                .on_hover_text("Import to Markdown, remove LLM watermarks / encoding artifacts (math and code preserved), and write a cleaned .md next to each file.")
-                                .clicked()
-                            {
-                                self.clean_hub_files();
                             }
                         }
 
