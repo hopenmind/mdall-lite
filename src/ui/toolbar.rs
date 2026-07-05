@@ -5,7 +5,6 @@ use eframe::egui;
 use crate::MdApp;
 use crate::theme;
 use crate::ViewMode;
-use crate::ui::state::LinkDialog;
 use crate::ui::commands::InlineFmt;
 use crate::ui::icons::{self, Icon};
 use crate::i18n::t;
@@ -860,44 +859,9 @@ impl MdApp {
                     ui.separator();
                     if ui.button("Exit").clicked() { ctx.send_viewport_cmd(egui::ViewportCommand::Close); }
                 });
-                ui.menu_button(t("menu.edit"), |ui| {
-                    if ui.button("Undo            Ctrl+Z").clicked() { self.do_undo(); ui.close_menu(); }
-                    if ui.button("Redo            Ctrl+Y").clicked() { self.do_redo(); ui.close_menu(); }
-                    ui.separator();
-                    if ui.button("Find & Replace   Ctrl+H").clicked() { self.show_search = !self.show_search; ui.close_menu(); }
-                });
-                ui.menu_button(t("menu.insert"), |ui| {
-                    if ui.button("Heading 1").clicked() { self.insert_text("# "); ui.close_menu(); }
-                    if ui.button("Heading 2").clicked() { self.insert_text("## "); ui.close_menu(); }
-                    if ui.button("Heading 3").clicked() { self.insert_text("### "); ui.close_menu(); }
-                    ui.separator();
-                    if ui.button("Bold              Ctrl+B").clicked() { self.toggle_inline_format(InlineFmt::Bold); ui.close_menu(); }
-                    if ui.button("Italic            Ctrl+I").clicked() { self.toggle_inline_format(InlineFmt::Italic); ui.close_menu(); }
-                    if ui.button("Underline         Ctrl+U").clicked() { self.toggle_inline_format(InlineFmt::Underline); ui.close_menu(); }
-                    if ui.button("Strikethrough").clicked() { self.toggle_inline_format(InlineFmt::Strike); ui.close_menu(); }
-                    if ui.button("Inline Code").clicked() { self.toggle_inline_format(InlineFmt::Code); ui.close_menu(); }
-                    ui.separator();
-                    if ui.button("Code Block").clicked() { self.insert_text("```\n\n```\n"); ui.close_menu(); }
-                    if ui.button("Equation Block    Ctrl+E").clicked() { self.insert_text("$$\n\\sum_{i=0}^{n} x_i\n$$\n"); ui.close_menu(); }
-                    if ui.button("Inline Equation").clicked() { self.wrap_text("$", "$"); ui.close_menu(); }
-                    ui.separator();
-                    if ui.button("Link...           Ctrl+K").clicked() {
-                        self.link_dialog = LinkDialog { visible: true, text: String::new(), url: String::new(), is_image: false };
-                        ui.close_menu();
-                    }
-                    if ui.button("Image...").clicked() {
-                        self.link_dialog = LinkDialog { visible: true, text: String::new(), url: String::new(), is_image: true };
-                        ui.close_menu();
-                    }
-                    if ui.button("Image from File...").clicked() { self.do_insert_image_file(); ui.close_menu(); }
-                    ui.separator();
-                    if ui.button("Table").clicked() { self.open_table_dialog(); ui.close_menu(); }
-                    if ui.button("List Item").clicked() { self.insert_text("- "); ui.close_menu(); }
-                    if ui.button("Blockquote").clicked() { self.insert_text("> "); ui.close_menu(); }
-                    if ui.button("Horizontal Rule").clicked() { self.insert_text("---\n"); ui.close_menu(); }
-                });
-                if ui.button(t("menu.metadata")).clicked() { self.show_metadata = true; }
-                if ui.button(t("menu.modules")).clicked() { self.module_open = true; }
+                // Lite is a converter + equation gallery, not a text editor: the
+                // Edit / Insert / Metadata / Modules menus are dropped. File (open /
+                // import / export) and Settings remain, plus Convert on the right.
                 if ui.button("Settings").on_hover_text("Application options").clicked() {
                     self.options_open = true;
                 }

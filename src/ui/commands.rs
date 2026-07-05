@@ -759,17 +759,6 @@ impl MdApp {
         }
     }
 
-    pub(crate) fn do_insert_image_file(&mut self) {
-        if let Some(path) = rfd::FileDialog::new()
-            .add_filter("Images", &["png", "jpg", "jpeg", "gif", "svg", "webp"])
-            .pick_file()
-        {
-            let rel = self.import_image_to_assets(&path);
-            let alt = path.file_stem().map(|s| s.to_string_lossy().to_string()).unwrap_or_else(|| "image".into());
-            self.insert_text(&format!("![{}]({})", alt, rel));
-        }
-    }
-
     /// Copy an image into an `assets/` folder beside the current document and
     /// return the relative `assets/<name>` path, so exports resolve it. Falls
     /// back to the absolute path when there is no document folder yet, or the
