@@ -19,3 +19,25 @@
 /examples/export_probe.rs
 /examples/eqcheck.rs
 /examples/typstcheck.rs
+
+# ── AI / working notes — NEVER shipped in the public release ──────────────
+# Defensive: keep agent/session/handoff notes out of the public repo even if a
+# tool drops one into the tree. Only build-essential files stay tracked
+# (README.md, NOTICES.md, crate READMEs, .github/workflows).
+CLAUDE.md
+AGENT.md
+AGENTS.md
+GEMINI.md
+/.claude/
+/.cursor/
+.cursorrules
+.aider*
+.mcp.json
+HANDOFF*.md
+PROJECT_STATUS.md
+/docs/ADR-*.md
+/docs/AUDIT-*.md
+/docs/HANDOFF*.md
+*.session.md
+/scratch/
+/scratchpad/
