@@ -12,15 +12,15 @@
       <path d="M0 0 L9 4.5 L0 9 Z" fill="#A020C0"/>
     </marker>
     <style>
-      .ink{fill:#241734}.mut{fill:#4E3D66}.card{fill:#FFFFFF;stroke:#E5D8BF;stroke-width:1.5}
-      .chip{fill:#FBF6E9;stroke:#E5D8BF;stroke-width:1}
+      .ink{fill:#241734}.mut{fill:#4E3D66}.card{fill:#FFFFFF;stroke:#D8C7EF;stroke-width:1.5}
+      .chip{fill:#F1E8FB;stroke:#D8C7EF;stroke-width:1}
       .h{font-size:15px;font-weight:700;fill:#241734}.s{font-size:11.5px;fill:#4E3D66}
       .t{font-size:11px;fill:#241734}.flow{stroke:#A020C0;stroke-width:2.2;fill:none}
     </style>
   </defs>
 
   <!-- brand desk -->
-  <rect x="0" y="0" width="920" height="470" rx="18" fill="#EFC01E"/>
+  <rect x="0" y="0" width="920" height="470" rx="18" fill="#A020C0"/>
   <rect x="0" y="0" width="920" height="470" rx="18" fill="#000000" opacity="0.03"/>
 
   <!-- title -->
@@ -45,11 +45,11 @@
   <text x="332" y="162" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">Equation gallery</text>
   <text x="332" y="178" font-size="10.5" fill="#ECD6F5" text-anchor="middle">click an equation &#8594; edit raw LaTeX &#8594; re-render</text>
 
-  <rect x="204" y="196" width="123" height="42" rx="9" fill="#FBF6E9" stroke="#E5D8BF"/>
+  <rect x="204" y="196" width="123" height="42" rx="9" fill="#F1E8FB" stroke="#D8C7EF"/>
   <text x="265" y="214" font-size="11.5" font-weight="700" class="ink" text-anchor="middle">Converter hub</text>
   <text x="265" y="230" font-size="9.5" class="mut" text-anchor="middle">batch drag &amp; drop</text>
 
-  <rect x="337" y="196" width="123" height="42" rx="9" fill="#FBF6E9" stroke="#E5D8BF"/>
+  <rect x="337" y="196" width="123" height="42" rx="9" fill="#F1E8FB" stroke="#D8C7EF"/>
   <text x="398" y="214" font-size="11.5" font-weight="700" class="ink" text-anchor="middle">Reversible DOCX</text>
   <text x="398" y="230" font-size="9.5" class="mut" text-anchor="middle">3 recovery layers</text>
 
@@ -76,7 +76,7 @@
   <rect x="688" y="150" width="212" height="104" rx="12" fill="#241734"/>
   <text x="794" y="178" font-size="14" font-weight="800" fill="#F2F2F5" text-anchor="middle">mdall-mcp</text>
   <text x="794" y="197" font-size="10.5" fill="#ECD6F5" text-anchor="middle">headless server, same core</text>
-  <text x="794" y="216" font-size="10.5" fill="#EFC01E" text-anchor="middle">Model Context Protocol (stdio)</text>
+  <text x="794" y="216" font-size="10.5" fill="#A020C0" text-anchor="middle">Model Context Protocol (stdio)</text>
   <text x="794" y="235" font-size="10" fill="#B9A9D0" text-anchor="middle">convert / recover from any LLM tool</text>
   <path class="flow" d="M672 202 H684" marker-end="url(#arrow)"/>
 

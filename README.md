@@ -10,6 +10,26 @@
 
 <br/>
 
+## In plain words
+
+**MD -> ALL lite turns your documents into other formats** (Word, PDF, web pages, e-books and more) **without ever breaking your equations.** Give it a file, choose what you want out of it, and it does the rest.
+
+- **No experience needed.** You do not have to code, and you never have to see any technical syntax.
+- **Nothing to set up.** One download for your computer (Windows, Mac or Linux). No account, no internet, no extra software to install.
+- **Your maths stays perfect.** Formulas are kept exact from start to finish, and a Word file you export can be turned back into an editable document later, with nothing lost.
+
+**How to get it:** open the [**Download**](#download) section below and click the file for your system. That is the whole setup.
+
+<div align="center">
+  <img src="assets/readme/hero-simple.svg" alt="Three steps: download and run, add your document, convert to anything" width="100%"/>
+</div>
+
+<br/>
+
+> *New to GitHub? This page is only where the app is stored, so you do not need an account or any knowledge of the site. The download links below are all you need.*
+
+<br/>
+
 > **MD -> ALL lite** is a focused, self-contained document **converter** with native LaTeX handling, a click-to-edit **equation gallery**, and a headless **MCP server**. No runtime, no install prerequisites, no internet: download one executable, run it, everything works offline.
 >
 > It is the lightweight sibling of the full [MD -> ALL](https://github.com/hopenmind/mdall) editor. Same lossless conversion core, none of the WYSIWYG weight: open a document, review and correct its equations, and export it anywhere. If you want a full scientific word processor, use MD -> ALL; if you want a fast, dependable converter that never loses your math, use lite.
@@ -73,6 +93,14 @@ Drop one file or a hundred onto the hub, choose an output format, and convert. T
 ## The Equation Gallery
 
 Instead of a full WYSIWYG surface, lite gives you the one editing view a converter actually needs: **every equation in the document, in one place.**
+
+<div align="center">
+  <img src="assets/readme/gallery.png" alt="The equation gallery: every equation as a card with a rendered preview and its LaTeX source" width="92%"/>
+  <br/><br/>
+  <em>Open a document and every equation becomes an editable card: rendered preview, raw LaTeX, one click to fix it.</em>
+</div>
+
+<br/>
 
 | Action | Result |
 |---|---|
