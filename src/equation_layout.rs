@@ -46,6 +46,8 @@ pub fn latex_to_layout_job(
         "\\overline{", "\\underline{", "\\widehat{", "\\widetilde{",
         "\\bm{", "\\rm{", "\\color{",
         "\\boxed{", "\\underbrace{", "\\overbrace{",
+        "\\check{", "\\breve{", "\\acute{", "\\grave{", "\\mathring{",
+        "\\overrightarrow{", "\\overleftarrow{",
     ];
     for cmd in &passthrough_cmds {
         loop {
@@ -60,6 +62,9 @@ pub fn latex_to_layout_job(
             break;
         }
     }
+
+    // Display / text / continued fraction variants render like \frac.
+    s = s.replace("\\dfrac", "\\frac").replace("\\tfrac", "\\frac").replace("\\cfrac", "\\frac");
 
     // \frac{a}{b} → (a)/(b)
     loop {
@@ -294,5 +299,31 @@ mod tests {
         // `\le` itself must still convert.
         let le = job_text("a \\le b");
         assert!(le.contains('≤'), "\\le lost: {:?}", le);
+    }
+
+    #[test]
+    fn extended_symbol_coverage() {
+        // Audit 2026-07-06: these used to leak as literal command names.
+        let cases = [
+            ("a \\xrightarrow{x} b", '→', "xrightarrow"),
+            ("\\oint E \\, dl", '∮', "oint"),
+            ("p \\wedge q", '∧', "wedge"),
+            ("p \\vee q", '∨', "vee"),
+            ("A \\implies B", '⟹', "implies"),
+            ("x \\prec y", '≺', "prec"),
+            ("\\bigcup_i A_i", '⋃', "bigcup"),
+        ];
+        for (latex, glyph, name) in cases {
+            let t = job_text(latex);
+            assert!(t.contains(glyph), "{:?}: missing {:?} -> {:?}", latex, glyph, t);
+            assert!(!t.contains(name), "{:?}: literal {:?} leaked -> {:?}", latex, name, t);
+        }
+    }
+
+    #[test]
+    fn dfrac_renders_like_frac() {
+        let t = job_text("\\dfrac{a}{b+c}");
+        assert!(t.contains("a/(b+c)"), "dfrac structure wrong: {:?}", t);
+        assert!(!t.contains("dfrac"), "dfrac leaked: {:?}", t);
     }
 }
