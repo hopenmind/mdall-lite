@@ -3,7 +3,7 @@ members = ["crates/core", "crates/convert", "crates/mcp"]
 
 [package]
 name = "mdall-lite"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2021"
 description = "MD -> ALL lite: Markdown/LaTeX converter with equation gallery and PDF export"
 authors = ["Hope 'n Mind <contact@hopenmind.com>"]
