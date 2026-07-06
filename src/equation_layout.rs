@@ -5,7 +5,7 @@
 //! the core (`mdall_core::render`) so the core stays 100% egui-free.
 
 use mdall_core::latex_macros::{expand_active, sanitize_latex};
-use mdall_core::render::{find_brace_end, normalize_latex_escapes, GREEKS, SYMBOLS};
+use mdall_core::render::{find_brace_end, normalize_latex_escapes, sorted_latex_replacements};
 
 /// Renders a LaTeX expression as an egui LayoutJob with proper subscript/superscript
 /// positioning using font-size scaling + valign - no Unicode char substitution needed.
@@ -45,6 +45,7 @@ pub fn latex_to_layout_job(
         "\\hat{", "\\tilde{", "\\bar{", "\\vec{", "\\dot{", "\\ddot{",
         "\\overline{", "\\underline{", "\\widehat{", "\\widetilde{",
         "\\bm{", "\\rm{", "\\color{",
+        "\\boxed{", "\\underbrace{", "\\overbrace{",
     ];
     for cmd in &passthrough_cmds {
         loop {
@@ -94,9 +95,11 @@ pub fn latex_to_layout_job(
         break;
     }
 
-    // Greeks and math symbols
-    for (cmd, uni) in GREEKS { s = s.replace(cmd, uni); }
-    for (cmd, uni) in SYMBOLS { s = s.replace(cmd, uni); }
+    // Greek + symbols, LONGEST COMMAND FIRST (shared core ordering) so a short
+    // command is never matched inside a longer one: `\le` must not eat `\left`
+    // -> "≤ft", `\in` must not eat `\int`. A naive per-table pass mangled
+    // `\left(` / `\right)` from imported Word/OMML equations.
+    for (cmd, uni) in sorted_latex_replacements() { s = s.replace(cmd, uni); }
 
     // Remove remaining \commands (keep name, drop backslash)
     {
@@ -280,5 +283,16 @@ mod tests {
         let t = job_text("\\alpha + \\beta \\leq \\gamma \\times \\delta");
         assert!(t.contains('α') && t.contains('β'), "greek missing: {:?}", t);
         assert!(t.contains('≤') && t.contains('×'), "symbols missing: {:?}", t);
+    }
+
+    #[test]
+    fn left_not_eaten_by_le() {
+        // Regression: `\le` used to eat `\left` -> "≤ft" in the layout renderer
+        // (the old per-table walk ran `\le` before the longer `\left`).
+        let t = job_text("R \\left( x \\right)");
+        assert!(!t.contains('≤'), "spurious ≤ from \\left: {:?}", t);
+        // `\le` itself must still convert.
+        let le = job_text("a \\le b");
+        assert!(le.contains('≤'), "\\le lost: {:?}", le);
     }
 }

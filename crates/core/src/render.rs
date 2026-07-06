@@ -575,7 +575,7 @@ fn resolve_path(path: &str, base_dir: &Path) -> String {
 /// GREEKS + SYMBOLS as one list sorted by descending command length, so
 /// `String::replace` always substitutes the longest matching command first and
 /// never mangles one command inside a longer one. Built once and cached.
-fn sorted_latex_replacements() -> &'static [(&'static str, &'static str)] {
+pub fn sorted_latex_replacements() -> &'static [(&'static str, &'static str)] {
     use std::sync::OnceLock;
     static CELL: OnceLock<Vec<(&'static str, &'static str)>> = OnceLock::new();
     CELL.get_or_init(|| {
