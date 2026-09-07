@@ -41,3 +41,11 @@ PROJECT_STATUS.md
 *.session.md
 /scratch/
 /scratchpad/
+
+# ── Secrets and local env — NEVER commit ─────────────────────────────────
+# Local environment and credentials stay out of the public repo. Commit a
+# .env.example template instead if the app ever needs documented variables.
+.env
+.env.*
+!.env.example
+*.pem
