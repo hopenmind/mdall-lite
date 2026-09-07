@@ -1,0 +1,26 @@
+[package]
+name = "mdall-installer"
+version = "1.0.0"
+edition = "2021"
+description = "Self-extracting installer stub for MD -> ALL"
+
+# Standalone package: deliberately NOT part of the main workspace, so normal
+# `cargo build` of the app never pulls in the installer stub. Empty [workspace]
+# table makes cargo treat this manifest as its own workspace root.
+[workspace]
+
+[[bin]]
+name = "installer"
+path = "src/main.rs"
+
+[dependencies]
+zip = { version = "2", default-features = false, features = ["deflate"] }
+
+[profile.release]
+opt-level = "z"
+lto = "thin"
+strip = true
+codegen-units = 1
+
+[build-dependencies]
+winresource = "0.1"

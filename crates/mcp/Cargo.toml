@@ -1,0 +1,18 @@
+[package]
+name = "mdall-mcp"
+version = "0.1.0"
+edition = "2021"
+description = "Headless Model Context Protocol server over the MD -> ALL conversion core: document conversion + lossless DOCX/Markdown LaTeX recovery, fully offline."
+authors = ["Hope 'n Mind <contact@hopenmind.com>"]
+
+[[bin]]
+name = "mdall-mcp"
+path = "src/main.rs"
+
+[dependencies]
+# Same pure-Rust core as the editor and CLI: identical conversion + reversibility.
+mdall-core = { path = "../core" }
+# JSON-RPC framing only - no MCP SDK, no async runtime (conversion is synchronous).
+serde_json = "1"
+# Inline image results (render_equation returns a base64 PNG content block).
+base64 = "0.22"

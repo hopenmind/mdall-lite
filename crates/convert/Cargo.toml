@@ -1,0 +1,14 @@
+[package]
+name = "mdall-convert"
+version = "0.1.0"
+edition = "2021"
+description = "Standalone CLI for the MD -> ALL conversion channel: convert any supported document to any supported format, fully offline, with lossless DOCX LaTeX round-trip."
+authors = ["Hope 'n Mind <contact@hopenmind.com>"]
+
+[[bin]]
+name = "mdall-convert"
+path = "src/main.rs"
+
+[dependencies]
+# Same pure-Rust core as the editor: identical conversion + reversibility.
+mdall-core = { path = "../core" }

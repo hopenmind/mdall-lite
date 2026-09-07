@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 240" width="360" height="240" role="img" aria-label="Git for equations">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9B85C9"/><stop offset="1" stop-color="#574A88"/></linearGradient><filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+  <rect x="2" y="2" width="356" height="236" rx="18" fill="none" stroke="url(#g)" stroke-width="2.5" filter="url(#glow)" opacity="0.5"><animate attributeName="opacity" values="0.25;0.7;0.25" dur="3.6s" repeatCount="indefinite"/></rect>
+  <rect x="2" y="2" width="356" height="236" rx="18" fill="#241734" stroke="url(#g)" stroke-width="2"/>
+  <rect x="24" y="22" width="52" height="4" rx="2" fill="url(#g)"/>
+  <g transform="translate(180 66)" fill="none" stroke="url(#g)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><circle cx="0" cy="0" r="20"/><circle cx="0" cy="0" r="11"/><circle cx="0" cy="0" r="3" fill="url(#g)" stroke="none"/></g>
+  <text x="180" y="146" text-anchor="middle" fill="#F1E8FB" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-weight="700" font-size="24">Git for equations</text>
+  <text x="180" y="172" text-anchor="middle" fill="#8E82AC" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-size="15">Every edit logged</text>
+  <text x="180" y="194" text-anchor="middle" fill="#8E82AC" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-size="15">revert in a click</text>
+</svg>
