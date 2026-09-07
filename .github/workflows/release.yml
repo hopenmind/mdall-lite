@@ -110,6 +110,8 @@ jobs:
           cp "target/release/mdall-convert.exe" "$full/"
           cp "target/release/mdall-mcp.exe"     "$full/"
           if [ -d chromium ]; then cp -r chromium "$full/engine"; fi
+          mkdir -p "$full/assets"
+          cp assets/logo.png assets/favicon.ico "$full/assets/"
 
       # Unix: portable bundle (app + CLI + MCP + engine/ next to the app).
       - name: Stage bundle (Unix)
@@ -120,6 +122,8 @@ jobs:
           mkdir -p "$full"
           cp "target/release/mdall-lite" "target/release/mdall-convert" "target/release/mdall-mcp" "$full/"
           if [ -d chromium ]; then cp -r chromium "$full/engine"; fi
+          mkdir -p "$full/assets"
+          cp assets/logo.png assets/favicon.ico "$full/assets/"
 
       # Standalone MCP server (all OSes): the headless binary on its own.
       - name: Stage MCP server

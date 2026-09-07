@@ -190,6 +190,16 @@ Copy-Item -Recurse $StrippedDir (Join-Path $StageDir "engine")
 Write-Host "  Bundling default en_US dictionary + license..." -ForegroundColor Yellow
 Get-DefaultDictionary (Join-Path $StageDir "dictionaries")
 
+# Brand assets on disk next to the app (logo + multi-resolution icon), so the
+# installed folder carries the brand and shortcuts can point at a real .ico.
+Write-Host "  Bundling brand assets (logo + icon)..." -ForegroundColor Yellow
+$AssetsOut = Join-Path $StageDir "assets"
+New-Item -ItemType Directory -Force $AssetsOut | Out-Null
+foreach ($asset in @("logo.png", "favicon.ico")) {
+    $src = Join-Path $ProjectRoot "assets\$asset"
+    if (Test-Path $src) { Copy-Item $src (Join-Path $AssetsOut $asset) }
+}
+
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $ProgressPreference = "SilentlyContinue"
 [System.IO.Compression.ZipFile]::CreateFromDirectory($StageDir, $ZipPath)
