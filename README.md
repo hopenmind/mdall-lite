@@ -90,10 +90,6 @@ Imports cover `.docx`, `.html`, `.odt`, `.epub`, `.rtf`, `.tex`, `.typ`, `.org`,
   <img src="assets/readme/gallery.png" width="860" alt="The equation gallery">
 </p>
 
-<p align="center">
-  <img src="assets/readme/editor.png" width="820" alt="The equation editor">
-</p>
-
 <img src="brand/bullet.svg" width="15" alt=""> **Every equation, one place.** Open a document and each display equation is a card: its number, a live rendered preview, and its raw LaTeX.
 
 <img src="brand/bullet.svg" width="15" alt=""> **Click to fix.** Edit the LaTeX, apply, and the block is rewritten in the source; the fix flows into every export from then on.
