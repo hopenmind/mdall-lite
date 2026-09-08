@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 201 44" width="201" height="44" role="img" aria-label="Limitations">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9B85C9"/><stop offset="1" stop-color="#574A88"/></linearGradient>
-    <style>.rest{fill:#241734}@media (prefers-color-scheme: dark){.rest{fill:#F0E3F2}}text{font-family:'Trebuchet MS','Segoe UI',system-ui,sans-serif;font-weight:700}</style>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B24BE0"/><stop offset="1" stop-color="#6D0C9C"/></linearGradient>
+    <style>.rest{fill:#2A0C3E}@media (prefers-color-scheme: dark){.rest{fill:#EFE7FA}}text{font-family:'Trebuchet MS','Segoe UI',system-ui,sans-serif;font-weight:700}</style>
   </defs>
   <text x="3" y="32" font-size="30"><tspan fill="url(#g)">L</tspan><tspan class="rest">imitations</tspan></text>
 </svg>

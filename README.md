@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" width="360" alt="MD -> ALL lite">
+  <img src="brand/banner.svg" width="900" alt="MD -> ALL lite">
 </p>
 
 <p align="center">
@@ -190,7 +190,7 @@ Double-escaped LaTeX (`\\alpha`), markdown-escaped braces (`\{`), and mixed nota
 
 ### Configure your MCP client
 
-The server speaks MCP over stdio (newline-delimited JSON-RPC 2.0), so the configuration is just the command. This same `mcpServers` shape works in most MCP hosts:
+The server speaks MCP over stdio (newline-delimited JSON-RPC 2.0), so the configuration is just the command. This same `mcpServers` shape works in Claude Desktop, Cursor, Cline, Continue, Windsurf, Zed, and most MCP hosts:
 
 ```json
 {
@@ -215,10 +215,6 @@ The server speaks MCP over stdio (newline-delimited JSON-RPC 2.0), so the config
 | `render_equation` | `{ latex, format, scale?, output? }` | Renders a LaTeX equation to PNG/SVG with its source embedded. |
 | `recover_source` | `{ input }` | Recovers the original Markdown + LaTeX from a lite-exported DOCX. |
 | `inspect_docx` | `{ input }` | Reports whether a DOCX is reversible and how much source it carries. |
-| `equation_history` | `{ input }` | Every equation's timestamped edit log (the local "git for equations"). |
-| `equation_revert` | `{ input, id, to }` | Revert an equation to a prior version (`origin` or a change `ts`); rewrites the `.md`. |
-| `equation_lint` | `{ input }` or `{ markdown }` | Flags malformed equations (unbalanced braces, mismatched `\left`/`\right`). |
-| `equation_fix` | `{ input, id? }` | Auto-corrects malformed equations and records each fix (revertible). |
 
 Paths are absolute. PDF uses the bundled engine when present and otherwise the pure-Rust Typst tier, so it works with the standalone MCP binary too. Untrusted-input paths are hardened: recovery is panic-guarded, the raster scale is clamped, deep equation XML is depth-bounded, and archive entries are size-capped, so a malformed document degrades to an error rather than taking the server down.
 

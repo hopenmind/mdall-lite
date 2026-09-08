@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 240" width="360" height="240" role="img" aria-label="Headless core">
-  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9B85C9"/><stop offset="1" stop-color="#574A88"/></linearGradient><filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B24BE0"/><stop offset="1" stop-color="#6D0C9C"/></linearGradient><filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7"/></filter></defs>
   <rect x="2" y="2" width="356" height="236" rx="18" fill="none" stroke="url(#g)" stroke-width="2.5" filter="url(#glow)" opacity="0.5"><animate attributeName="opacity" values="0.25;0.7;0.25" dur="3.6s" repeatCount="indefinite"/></rect>
-  <rect x="2" y="2" width="356" height="236" rx="18" fill="#241734" stroke="url(#g)" stroke-width="2"/>
+  <rect x="2" y="2" width="356" height="236" rx="18" fill="#1A0A24" stroke="url(#g)" stroke-width="2"/>
   <rect x="24" y="22" width="52" height="4" rx="2" fill="url(#g)"/>
   <g transform="translate(180 66)" fill="none" stroke="url(#g)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect x="-24" y="-14" width="48" height="28" rx="5"/><path d="M-16 -5 h3 M-6 -5 h3 M4 -5 h3 M14 -5 h3 M-16 4 h3 M-8 4 h16 M14 4 h3"/></g>
-  <text x="180" y="146" text-anchor="middle" fill="#F1E8FB" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-weight="700" font-size="24">Headless core</text>
-  <text x="180" y="172" text-anchor="middle" fill="#8E82AC" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-size="15">Eleven tools</text>
-  <text x="180" y="194" text-anchor="middle" fill="#8E82AC" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-size="15">over stdio</text>
+  <text x="180" y="146" text-anchor="middle" fill="#F3EEFA" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-weight="700" font-size="24">Headless core</text>
+  <text x="180" y="172" text-anchor="middle" fill="#B7A6C6" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-size="15">Eleven tools</text>
+  <text x="180" y="194" text-anchor="middle" fill="#B7A6C6" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-size="15">over stdio</text>
 </svg>
