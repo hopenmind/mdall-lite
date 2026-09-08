@@ -242,5 +242,5 @@ Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue
 
 Write-Host ""
 Write-Host "  Done. Distribute: $OutputExe" -ForegroundColor Green
-Write-Host "  Users run this single exe — everything extracts and launches automatically." -ForegroundColor DarkGray
+Write-Host "  Users run this single exe - everything extracts and launches automatically." -ForegroundColor DarkGray
 Write-Host ""

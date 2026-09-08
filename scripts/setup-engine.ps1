@@ -30,7 +30,7 @@ $ChromiumDir  = if ($TargetDir) { $TargetDir } else { Join-Path $ProjectRoot "ch
 $TmpDir       = Join-Path $env:TEMP "md2all-chromium-setup"
 
 Write-Host ""
-Write-Host "  MD -> ALL — Rendering Engine Setup" -ForegroundColor Cyan
+Write-Host "  MD -> ALL - Rendering Engine Setup" -ForegroundColor Cyan
 Write-Host "  Project root : $ProjectRoot"
 Write-Host "  Install path : $ChromiumDir"
 Write-Host ""
@@ -42,7 +42,7 @@ if ((Test-Path $ChromeExe) -and -not $Force) {
     Write-Host "  [OK] rendering engine already installed: $existing" -ForegroundColor Green
     Write-Host "       Use -Force to re-download."
     Write-Host ""
-    # Create-DevJunctions is defined further below — dot-source inline to avoid forward-ref issue
+    # Create-DevJunctions is defined further below - dot-source inline to avoid forward-ref issue
     $targets = @(
         (Join-Path $ProjectRoot "target\debug\chromium"),
         (Join-Path $ProjectRoot "target\release\chromium")
@@ -137,7 +137,7 @@ New-Item -ItemType Directory -Path $ExtractTmp -Force | Out-Null
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory($ZipPath, $ExtractTmp)
 
-# The ZIP may extract into a sub-folder named after the release —
+# The ZIP may extract into a sub-folder named after the release - 
 # detect and unwrap one level if needed.
 # Force array with @() so .Count works even when there is exactly one child.
 $Children = @(Get-ChildItem $ExtractTmp)
@@ -158,7 +158,7 @@ Get-ChildItem $Inner | ForEach-Object {
 
 # Verify
 if (-not (Test-Path $ChromeExe)) {
-    Write-Error "  Extraction failed — chrome.exe not found at $ChromeExe"
+    Write-Error "  Extraction failed - chrome.exe not found at $ChromeExe"
     exit 1
 }
 

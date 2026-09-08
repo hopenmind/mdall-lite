@@ -34,7 +34,7 @@ katex = { version = "0.4", default-features = false, features = ["duktape"] }
 # XML parsing (namespace-aware import: DOCX / ODT)
 quick-xml = "0.36"
 
-# Spell checking — pure-Rust, Hunspell-compatible (.dic/.aff). Offline; no C deps.
+# Spell checking - pure-Rust, Hunspell-compatible (.dic/.aff). Offline; no C deps.
 spellbook = "0.4"
 
 # Containers / images

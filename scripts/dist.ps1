@@ -107,7 +107,7 @@ New-Item -ItemType Directory -Path $DistRoot -Force | Out-Null
 # Main executable
 Copy-Item $ExePath (Join-Path $DistRoot "mdall-lite.exe")
 
-# Rendering engine (portable folder — full copy, ~180 MB)
+# Rendering engine (portable folder - full copy, ~180 MB)
 Write-Host "  Copying the engine (~180 MB, please wait)..."
 $ProgressPreference = "SilentlyContinue"
 Copy-Item -Recurse $ChromiumDir $DistChromium
@@ -127,7 +127,7 @@ Markdown/LaTeX converter with KaTeX math rendering and high-quality PDF export.
 
 Included:
   mdall-lite.exe - main application
-  engine/        - bundled rendering engine (headless, PDF only)
+  engine/     - bundled rendering engine (headless, PDF only)
 
 Usage:
   Double-click mdall-lite.exe to launch.
