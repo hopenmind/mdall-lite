@@ -161,7 +161,7 @@ Double-escaped LaTeX (`\\alpha`), markdown-escaped braces (`\{`), and mixed nota
 <a id="history"></a>
 <img src="brand/titles/history.svg" height="30" alt="Equation history">
 
-<img src="brand/ornament.svg" width="15" alt=""> Git for your equations: every edit logged locally and timestamped, per document, under your app data folder, with one-click revert to any past version.
+<img src="brand/ornament.svg" width="15" alt=""> A local edit history for your equations: every edit logged locally and timestamped, per document, under your app data folder, with one-click revert to any past version.
 
 <p align="center">
   <img src="brand/card-history.svg" width="360" alt="Equation history">
